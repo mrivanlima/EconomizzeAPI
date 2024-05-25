@@ -1,0 +1,6 @@
+@EconomizzeAPI_HostAddress = http://localhost:5113
+
+GET {{EconomizzeAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
