@@ -1,4 +1,4 @@
-@EconomizzeAPI_HostAddress = http://localhost:5113
+@EconomizzeAPI_HostAddress = http://localhost:5240
 
 GET {{EconomizzeAPI_HostAddress}}/weatherforecast/
 Accept: application/json

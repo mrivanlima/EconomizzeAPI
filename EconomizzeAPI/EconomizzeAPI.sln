@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconomizzeAPI", "EconomizzeAPI.csproj", "{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3C0E565-DD23-44F4-8947-8CB36E992A24}
+	EndGlobalSection
+EndGlobal
