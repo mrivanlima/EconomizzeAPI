@@ -1,4 +1,6 @@
+using Economizze.Library;
 using EconomizzeAPI.Services.DBServices;
+using EconomizzeAPI.Services.Repositories;
 using System.Data.Common;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +18,7 @@ builder.Services.AddControllers(options =>
 }).AddXmlSerializerFormatters();
 
 builder.Services.AddScoped<IConnectionService, ConnectionService>();
+builder.Services.AddScoped<IStateRepository, StateRepository>();
 
 var app = builder.Build();
 

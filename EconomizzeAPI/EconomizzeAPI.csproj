@@ -12,10 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="EconomizzeLibrary">
-      <HintPath>bin\Debug\net8.0\EconomizzeLibrary.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <ProjectReference Include="..\Economizze.Library\Economizze.Library.csproj" />
   </ItemGroup>
 
 </Project>
