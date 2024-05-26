@@ -10,6 +10,7 @@ namespace Economizze.Library
 	{
 		public short StateId { get; set; }
 		public string StateName { get; set; } = string.Empty;
+		public string StateUf { get; set; } = string.Empty;
 		public string StateNameAscii { get; set; } = string.Empty;
 		public double? Longitude { get; set; }
 		public double? Latitude { get; set; }

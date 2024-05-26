@@ -20,6 +20,8 @@ builder.Services.AddControllers(options =>
 builder.Services.AddScoped<IConnectionService, ConnectionService>();
 builder.Services.AddScoped<IStateRepository, StateRepository>();
 
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
