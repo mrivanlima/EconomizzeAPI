@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconomizzeAPI", "EconomizzeAPI.csproj", "{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EconomizzeAPI", "EconomizzeAPI.csproj", "{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Economizze.Library", "..\Economizze.Library\Economizze.Library.csproj", "{2148AB1F-ADFB-4ED4-9DA5-DA77733EA2EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{745E03DE-2EB1-4F2B-8FB5-8E8DB39E6EBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2148AB1F-ADFB-4ED4-9DA5-DA77733EA2EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2148AB1F-ADFB-4ED4-9DA5-DA77733EA2EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2148AB1F-ADFB-4ED4-9DA5-DA77733EA2EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2148AB1F-ADFB-4ED4-9DA5-DA77733EA2EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
