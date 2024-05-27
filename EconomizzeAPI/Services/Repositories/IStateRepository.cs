@@ -6,5 +6,6 @@ namespace EconomizzeAPI.Services.Repositories
 	{
 		Task<Tuple<State, bool>> CreateAsync(State state);
 		Task<State> ReadByIdAsync(short id);
+		Task<IEnumerable<State>> ReadAllAsync();
 	}
 }

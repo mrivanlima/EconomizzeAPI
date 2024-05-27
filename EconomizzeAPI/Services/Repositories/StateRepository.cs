@@ -93,5 +93,38 @@ namespace EconomizzeAPI.Services.Repositories
 			return state;
 
 		}
+
+		public async Task<IEnumerable<State>> ReadAllAsync()
+		{
+			ICollection<State> states = new List<State>();
+			await using var command = new NpgsqlCommand("SELECT * FROM app.usp_api_state_read_all()", _connection);
+
+			try
+			{
+				await _connection.OpenAsync();
+				await using var reader = await command.ExecuteReaderAsync();
+
+				while (await reader.ReadAsync())
+				{
+					states.Add(new State
+					{
+						StateId = reader.GetInt16(0),
+						StateName = reader.GetString(1),
+						Longitude = reader.GetDouble(2),
+						Latitude = reader.GetDouble(3),
+						StateUf = reader.GetString(4)
+					});
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error: {ex.Message}");
+			}
+			finally
+			{
+				await _connection.CloseAsync();
+			}
+			return states;
+		}
 	}
 }

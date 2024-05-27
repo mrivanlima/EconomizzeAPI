@@ -34,7 +34,7 @@ namespace EconomizzeAPI.Controllers
 			return CreatedAtRoute("estado", new { StateId = stateViewModel.Item1.StateId }, _mapper.Map<StateViewModel>(map));
 		}
 
-		[HttpGet("{stateId}")]
+		[HttpGet("{stateId}", Name = "estado")]
 		public async Task<ActionResult<StateViewModel>> GetById(short stateId)
 		{
 			var state = await _stateRepository.ReadByIdAsync(stateId);
@@ -44,6 +44,17 @@ namespace EconomizzeAPI.Controllers
 			}
 
 			return Ok(_mapper.Map<StateViewModel>(state));
+		}
+
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<StateViewModel>>> GetStatesAll()
+		{
+			var states = await _stateRepository.ReadAllAsync();
+			if (states.Count() < 1)
+			{
+				return NotFound();
+			}
+			return Ok(_mapper.Map<IEnumerable<StateViewModel>>(states));
 		}
 
 		[HttpPut]
