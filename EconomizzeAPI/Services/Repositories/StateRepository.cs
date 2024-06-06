@@ -5,6 +5,7 @@ using Npgsql;
 using System.Data;
 using System.Data.SqlTypes;
 using System.Security.Cryptography.X509Certificates;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EconomizzeAPI.Services.Repositories
 {
@@ -126,5 +127,42 @@ namespace EconomizzeAPI.Services.Repositories
 			}
 			return states;
 		}
-	}
+
+        public async Task<bool> UpdateAsync(State state)
+        {
+			bool error = false;
+            NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_state_update_by_id", _connection);
+            try
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("p_state_id", state.StateId);
+                cmd.Parameters.AddWithValue("p_state_name", state.StateName);
+                cmd.Parameters.AddWithValue("p_state_name_ascii", state.StateNameAscii);
+                cmd.Parameters.AddWithValue("p_state_uf", state.StateUf);
+                cmd.Parameters.AddWithValue("p_longitude", state.Longitude.HasValue ? (object)state.Longitude.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("p_latitude", state.Latitude.HasValue ? (object)state.Latitude.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("p_modified_by", state.ModifiedBy);
+                cmd.Parameters.AddWithValue("p_error", error).Direction = ParameterDirection.InputOutput;
+                await _connection.OpenAsync();
+
+                cmd.ExecuteNonQuery();
+
+				#pragma warning disable CS8605 // Unboxing a possibly null value.
+                error = (bool)cmd.Parameters["p_error"].Value;
+				#pragma warning restore CS8605 // Unboxing a possibly null value.
+
+
+            }
+            catch (Exception ex)
+            {
+				error = true;
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+
+			return error;
+        }
+    }
 }

@@ -60,15 +60,14 @@ namespace EconomizzeAPI.Controllers
 		[HttpPut]
 		public async Task<ActionResult<StateViewModel>> UpdateById(StateViewModel state)
 		{
-			//var result = _mapper.Map<State>(state);
-			//var StateViewModel = await _stateRepository.UpdateStateAsyncById(result);
-			//if (StateViewModel == null)
-			//{
-			//	return NotFound();
-			//}
-			//return NoContent();
-
+			var result = _mapper.Map<State>(state);
+			var StateViewModel = await _stateRepository.UpdateAsync(result);
+			if (StateViewModel == true)
+			{
+				return NotFound();
+			}
 			return NoContent();
+
 		}
 
 	}
