@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Economizze.Library
+﻿namespace EconomizzeAPI.Model
 {
-    public class AddressDetail
+    public class AddressDetailViewModel
     {
         public int StreetId { get; set; }
         public string StreetName { get; set; } = string.Empty;
