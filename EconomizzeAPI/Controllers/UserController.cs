@@ -19,7 +19,7 @@ namespace EconomizzeAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<State>> CreateState(UserSetUp user)
+        public async Task<ActionResult<UserSetUp>> CreateUser(UserSetUp user)
         {
             var map = _mapper.Map<UserSetUp>(user);
             var userSetUpViewModel = await _userRepository.CreateAsync(map);
@@ -33,15 +33,15 @@ namespace EconomizzeAPI.Controllers
         }
 
         [HttpGet("{userId}", Name = "usuario")]
-        public async Task<ActionResult<StateViewModel>> GetById(int userId)
+        public async Task<ActionResult<UserSetUpViewModel>> GetById(int userId)
         {
-            var state = await _userRepository.ReadByIdAsync(userId);
-            if (state.StateId < 1)
+            var user = await _userRepository.ReadByIdAsync(userId);
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<StateViewModel>(state));
+            return Ok(_mapper.Map<StateViewModel>(user));
         }
     }
 }

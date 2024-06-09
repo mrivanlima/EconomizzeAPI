@@ -63,5 +63,7 @@ namespace EconomizzeAPI.Model
 
         [Range(1, int.MaxValue, ErrorMessage = "Modified by must be a positive number")]
         public int? ModifiedBy { get; set; }
+
+        public string Message { get; set; } = String.Empty;
     }
 }
