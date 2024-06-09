@@ -1,4 +1,5 @@
 ﻿using Economizze.Library;
+using EconomizzeAPI.Helper;
 using EconomizzeAPI.Services.DBServices;
 using Npgsql;
 using System.Data;
@@ -9,24 +10,28 @@ namespace EconomizzeAPI.Services.Repositories
     {
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
+        private ErrorHelper error;
 
         public UserRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
+            error = new ErrorHelper();
         }
 
-        public async Task<Tuple<UserSetUp, bool>> CreateAsync(UserSetUp user)
+        public async Task<Tuple<UserSetUp, ErrorHelper>> CreateAsync(UserSetUp user)
         {
 
-            bool error = false;
-            var message = "";
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_setup", _connection);
 
             try
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
+
+                cmd.Parameters.AddWithValue("p_date_of_birth", user.DateOfBirth.HasValue ? user.DateOfBirth.Value : DBNull.Value);
+                //postgres picks up timestamp, for taht reason datatypoe date in postgres must be done this way.
+                cmd.Parameters[0].NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Date; 
                 cmd.Parameters.AddWithValue("p_user_first_name", user.UserFirstName);
                 cmd.Parameters.AddWithValue("p_user_email", user.UserEmail);
                 cmd.Parameters.AddWithValue("p_username", user.Username);
@@ -36,30 +41,27 @@ namespace EconomizzeAPI.Services.Repositories
                 cmd.Parameters.AddWithValue("p_user_last_name", user.UserLastName ?? string.Empty);
                 cmd.Parameters.AddWithValue("p_cpf", user.CPF ?? string.Empty);
                 cmd.Parameters.AddWithValue("p_rg", user.RG ?? string.Empty);
-                //cmd.Parameters.AddWithValue("p_date_of_birth", (DateTime)user.DateOfBirth );
                 cmd.Parameters.AddWithValue("p_is_verified", user.IsVerified);
                 cmd.Parameters.AddWithValue("p_is_active", user.IsActive);
                 cmd.Parameters.AddWithValue("p_is_locked", user.IsLocked);
                 cmd.Parameters.AddWithValue("p_password_attempts", user.PasswordAttempts);
                 cmd.Parameters.AddWithValue("p_changed_initial_password", user.ChangedInitialPassword);
-                //cmd.Parameters.AddWithValue("p_locked_time", user.LockedTime);
-                //cmd.Parameters.AddWithValue("p_created_by", user.CreatedBy);
-                //cmd.Parameters.AddWithValue("p_modified_by", user.ModifiedBy);
+                cmd.Parameters.AddWithValue("p_locked_time", user.LockedTime.HasValue ? (object)user.LockedTime.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("p_created_by", user.CreatedBy.HasValue ? (object)user.CreatedBy.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("p_modified_by", user.ModifiedBy.HasValue ? (object)user.ModifiedBy.Value : DBNull.Value);
 
-
-
-                cmd.Parameters.AddWithValue("p_error", error).Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
                 cmd.Parameters.AddWithValue("p_out_user_id", user.UserId).Direction = ParameterDirection.Output;
-                cmd.Parameters.AddWithValue("p_out_message", message).Direction = ParameterDirection.Output;
+                cmd.Parameters.AddWithValue("p_out_message", error.ErrorMessage).Direction = ParameterDirection.Output;
                 await _connection.OpenAsync();
 
                 cmd.ExecuteNonQuery();
 
-                error = (bool)cmd.Parameters["p_error"].Value;
-                message = cmd.Parameters["p_out_message"].Value.ToString();
-                if (!error)
+                error.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
+                error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+                if (!error.HasError)
                 {
-                    user.UserId = (int)cmd.Parameters["p_out_user_id"].Value;
+                    user.UserId = Convert.ToInt32(cmd.Parameters["p_out_user_id"].Value);
                 }
 
             }
@@ -71,7 +73,7 @@ namespace EconomizzeAPI.Services.Repositories
             {
                 await _connection.CloseAsync();
             }
-            return new Tuple<UserSetUp, bool>(user, error);
+            return new Tuple<UserSetUp, ErrorHelper>(user, error);
         }
 
         public Task<State> ReadByIdAsync(int id)

@@ -23,10 +23,9 @@ namespace EconomizzeAPI.Controllers
         {
             var map = _mapper.Map<UserSetUp>(user);
             var userSetUpViewModel = await _userRepository.CreateAsync(map);
-            if (userSetUpViewModel.Item2)
+            if (userSetUpViewModel.Item2.HasError)
             {
-                return BadRequest();
-
+                return BadRequest(userSetUpViewModel.Item2.ErrorMessage);
             }
 
             return CreatedAtRoute("usuario", new { UserId = userSetUpViewModel.Item1.UserId }, _mapper.Map<UserSetUpViewModel>(map));
