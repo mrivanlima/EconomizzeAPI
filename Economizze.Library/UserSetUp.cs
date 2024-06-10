@@ -28,6 +28,7 @@ namespace Economizze.Library
         public DateTime? LockedTime { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
+        public Guid UserUniqueId { get; set; }
 
     }
 }

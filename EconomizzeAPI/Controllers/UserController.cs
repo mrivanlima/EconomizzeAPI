@@ -19,8 +19,9 @@ namespace EconomizzeAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserSetUp>> CreateUser(UserSetUp user)
+        public async Task<ActionResult<UserSetUp>> CreateUser(UserSetUpViewModel user)
         {
+            user.UserUniqueId = Guid.NewGuid();
             var map = _mapper.Map<UserSetUp>(user);
             var userSetUpViewModel = await _userRepository.CreateAsync(map);
             if (userSetUpViewModel.Item2.HasError)
@@ -41,6 +42,48 @@ namespace EconomizzeAPI.Controllers
             }
 
             return Ok(_mapper.Map<StateViewModel>(user));
+        }
+
+        [HttpPost("{username}")]
+        public async Task<ActionResult<UserDetailViewModel>> GetByUsername(UserLoginViewModel userlogin)
+        {
+            var user = await _userRepository.ReadUserByUsername(userlogin.Username);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if(user.PasswordHash != userlogin.Password)
+            {
+                return Unauthorized("Senha incorreta!");
+            }
+
+            if (!user.IsVerified)
+            {
+                return Unauthorized("Confirme seu email!");
+            }
+
+            if (!user.IsActive)
+            {
+                return Unauthorized("Usuario inativo!");
+            }
+
+            if (user.IsLocked)
+            {
+                return Unauthorized("Usuario blockeado!");
+            }
+
+            if (!user.ChangedInitialPassword)
+            {
+                return Unauthorized("Mude senha!");
+            }
+
+            if (user.PasswordAttempts > 2)
+            {
+                return Unauthorized("Espere uma hora!");
+            }
+
+            return Ok(_mapper.Map<UserDetailViewModel>(user));
         }
     }
 }

@@ -20,5 +20,6 @@ namespace Economizze.Library
         public DateTime CreatedOn { get; set; }
         public int? ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
+        public string UserUniqueId { get; set; } = string.Empty;
     }
 }
