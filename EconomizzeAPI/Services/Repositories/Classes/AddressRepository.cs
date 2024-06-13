@@ -1,8 +1,9 @@
 ﻿using Economizze.Library;
 using EconomizzeAPI.Services.DBServices;
+using EconomizzeAPI.Services.Repositories.Interfaces;
 using Npgsql;
 
-namespace EconomizzeAPI.Services.Repositories
+namespace EconomizzeAPI.Services.Repositories.Classes
 {
     public class AddressRepository : IAddressRepository
     {

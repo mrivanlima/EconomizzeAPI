@@ -2,7 +2,7 @@
 using EconomizzeAPI.Helper;
 using EconomizzeAPI.Model;
 
-namespace EconomizzeAPI.Services.Repositories
+namespace EconomizzeAPI.Services.Repositories.Interfaces
 {
     public interface IUserRepository
     {

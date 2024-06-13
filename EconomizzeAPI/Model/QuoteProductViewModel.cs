@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EconomizzeAPI.Model
 {
-    public class QuoteProductViewControl
+    public class QuoteProductViewModel
     {
 
         public long QuoteId { get; set; }

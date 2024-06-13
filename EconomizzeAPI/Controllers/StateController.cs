@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Economizze.Library;
-using EconomizzeAPI.Services.Repositories;
 using Microsoft.AspNetCore.Http.HttpResults;
 using AutoMapper;
 using EconomizzeAPI.Model;
+using EconomizzeAPI.Services.Repositories.Interfaces;
 
 namespace EconomizzeAPI.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/estado")]
 	public class StateController  : ControllerBase
 	{

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Economizze.Library;
 using EconomizzeAPI.Model;
-using EconomizzeAPI.Services.Repositories;
+using EconomizzeAPI.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EconomizzeAPI.Controllers

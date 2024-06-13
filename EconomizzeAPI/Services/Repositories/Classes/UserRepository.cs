@@ -2,12 +2,13 @@
 using EconomizzeAPI.Helper;
 using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.DBServices;
+using EconomizzeAPI.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Npgsql;
 using System.Data;
 using System.Reflection.Emit;
 
-namespace EconomizzeAPI.Services.Repositories
+namespace EconomizzeAPI.Services.Repositories.Classes
 {
     public class UserRepository : IUserRepository
     {
@@ -34,7 +35,7 @@ namespace EconomizzeAPI.Services.Repositories
 
                 cmd.Parameters.AddWithValue("p_date_of_birth", user.DateOfBirth.HasValue ? user.DateOfBirth.Value : DBNull.Value);
                 //postgres picks up timestamp, for taht reason datatypoe date in postgres must be done this way.
-                cmd.Parameters[0].NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Date; 
+                cmd.Parameters[0].NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Date;
                 cmd.Parameters.AddWithValue("p_user_first_name", user.UserFirstName);
                 cmd.Parameters.AddWithValue("p_user_email", user.UserEmail);
                 cmd.Parameters.AddWithValue("p_username", user.Username);
@@ -50,9 +51,9 @@ namespace EconomizzeAPI.Services.Repositories
                 cmd.Parameters.AddWithValue("p_user_unique_id", user.UserUniqueId);
                 cmd.Parameters.AddWithValue("p_password_attempts", user.PasswordAttempts);
                 cmd.Parameters.AddWithValue("p_changed_initial_password", user.ChangedInitialPassword);
-                cmd.Parameters.AddWithValue("p_locked_time", user.LockedTime.HasValue ? (object)user.LockedTime.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("p_created_by", user.CreatedBy.HasValue ? (object)user.CreatedBy.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("p_modified_by", user.ModifiedBy.HasValue ? (object)user.ModifiedBy.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("p_locked_time", user.LockedTime.HasValue ? user.LockedTime.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("p_created_by", user.CreatedBy.HasValue ? user.CreatedBy.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("p_modified_by", user.ModifiedBy.HasValue ? user.ModifiedBy.Value : DBNull.Value);
 
                 cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
                 cmd.Parameters.AddWithValue("p_out_user_id", user.UserId).Direction = ParameterDirection.Output;
@@ -109,7 +110,7 @@ namespace EconomizzeAPI.Services.Repositories
                     userDetail.IsLocked = Convert.ToBoolean(npgsqlDr["is_locked"]);
                     userDetail.PasswordAttempts = Convert.ToInt32(npgsqlDr["password_atempts"]);
                     userDetail.ChangedInitialPassword = Convert.ToBoolean(npgsqlDr["changed_initial_password"]);
-                    userDetail.LockedTime = npgsqlDr.IsDBNull(npgsqlDr.GetOrdinal("locked_time")) ? (DateTime?)null : Convert.ToDateTime(npgsqlDr["locked_time"]);
+                    userDetail.LockedTime = npgsqlDr.IsDBNull(npgsqlDr.GetOrdinal("locked_time")) ? null : Convert.ToDateTime(npgsqlDr["locked_time"]);
                     userDetail.UserId = Convert.ToInt32(npgsqlDr["user_id"]);
                     userDetail.UserFirstName = npgsqlDr["user_first_name"]?.ToString() ?? string.Empty;
                     userDetail.UserMiddleName = npgsqlDr["user_middle_name"]?.ToString() ?? string.Empty;

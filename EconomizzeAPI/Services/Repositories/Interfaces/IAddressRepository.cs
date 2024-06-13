@@ -1,6 +1,6 @@
 ﻿using Economizze.Library;
 
-namespace EconomizzeAPI.Services.Repositories
+namespace EconomizzeAPI.Services.Repositories.Interfaces
 {
     public interface IAddressRepository
     {
