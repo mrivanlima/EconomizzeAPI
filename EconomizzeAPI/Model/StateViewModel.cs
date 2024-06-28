@@ -11,7 +11,7 @@ namespace EconomizzeAPI.Model
 		public string StateName { get; set; } = string.Empty;
 
 		[StringLength(2, MinimumLength = 2, ErrorMessage = "Palavra precisa ser de 2 caracteres.")]
-		public string StateAbbreviation { get; set; } = string.Empty;
+		public string StateUf { get; set; } = string.Empty;
 		public decimal Longitude { get; set; }
 		public decimal Latitude { get; set; }
 	}
