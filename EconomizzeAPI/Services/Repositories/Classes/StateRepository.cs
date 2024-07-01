@@ -51,6 +51,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                error = true;
             }
             finally
             {

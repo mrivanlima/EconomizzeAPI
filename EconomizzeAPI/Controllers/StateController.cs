@@ -21,7 +21,7 @@ namespace EconomizzeAPI.Controllers
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<State>> CreateState(State state)
+		public async Task<ActionResult<State>> CreateState(StateViewModel state)
 		{
 			var map = _mapper.Map<State>(state);
 			var stateViewModel = await _stateRepository.CreateAsync(map);
