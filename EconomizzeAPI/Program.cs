@@ -33,6 +33,7 @@ builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<INeighborhoodRepository, NeighborhoodRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductVersionRepository, ProductVersionRepository>();
+builder.Services.AddScoped<IProfessionRepository, ProfessionRepository>();
 builder.Services.AddScoped<IQuoteProductRepository, QuoteProductRepository>();
 
 builder.Services.AddScoped<IQuoteProductResponseRepository, QuoteProductResponseRepository>();
@@ -53,9 +54,9 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
-
+#if !DEBUG
 app.UseHttpsRedirection();
-
+#endif
 app.UseAuthorization();
 
 app.MapControllers();

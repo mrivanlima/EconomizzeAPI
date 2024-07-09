@@ -22,7 +22,7 @@ namespace EconomizzeAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Group>> CreateState(GroupViewModel group)
+        public async Task<ActionResult<Group>> CreateGroup(GroupViewModel group)
         {
             var map = _mapper.Map<Group>(group);
             var groupViewModel = await _groupRepository.CreateAsync(map);

@@ -6,28 +6,28 @@ using System.Data;
 
 namespace EconomizzeAPI.Services.Repositories.Classes
 {
-    public class GroupRepository : IGroupRepository
+    public class ProfessionRepository : IProfessionRepository
     {
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
 
-        public GroupRepository(IConnectionService connect)
+        public ProfessionRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
         }
-        public async Task<Tuple<Group, bool>> CreateAsync(Group group)
+        public async Task<Tuple<Profession, bool>> CreateAsync(Profession profession)
         {
             bool error = false;
-            NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_group_create", _connection);
+            NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_profession_create", _connection);
 
             try
             {
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("p_out_group_id", group.GroupId).Direction = ParameterDirection.Output;
-                cmd.Parameters.AddWithValue("p_group_name", group.GroupName);
-                cmd.Parameters.AddWithValue("p_created_by", group.CreatedBy);
-                cmd.Parameters.AddWithValue("p_modified_by", group.ModifiedBy);
+                cmd.Parameters.AddWithValue("p_out_profession_id", profession.ProfessionId).Direction = ParameterDirection.Output;
+                cmd.Parameters.AddWithValue("p_profession_name", profession.ProfessionName);
+                cmd.Parameters.AddWithValue("p_created_by", profession.CreatedBy);
+                cmd.Parameters.AddWithValue("p_modified_by", profession.ModifiedBy);
                 cmd.Parameters.AddWithValue("p_error", error).Direction = ParameterDirection.InputOutput;
                 await _connection.OpenAsync();
 
@@ -36,7 +36,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 error = (bool)cmd.Parameters["p_error"].Value;
                 if (!error)
                 {
-                    group.GroupId = (short)cmd.Parameters["p_out_group_id"].Value;
+                    profession.ProfessionId = (short)cmd.Parameters["p_out_profession_id"].Value;
                 }
             }
             catch (Exception ex)
@@ -49,13 +49,13 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 await _connection.CloseAsync();
             }
 
-            return new Tuple<Group, bool>(group, error);
+            return new Tuple<Profession, bool>(profession, error);
         }
 
-        public async Task<IEnumerable<Group>> ReadAllAsync()
+        public async Task<IEnumerable<Profession>> ReadAllAsync()
         {
-            ICollection<Group> groups = new List<Group>();
-            await using var command = new NpgsqlCommand("SELECT * FROM app.usp_api_group_read_all()", _connection);
+            ICollection<Profession> professions = new List<Profession>();
+            await using var command = new NpgsqlCommand("SELECT * FROM app.usp_api_profession_read_all()", _connection);
 
             try
             {
@@ -64,11 +64,11 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
                 while (await reader.ReadAsync())
                 {
-                    groups.Add(new Group
+                    professions.Add(new Profession
                     {
-                        GroupId = reader.GetInt16(0),
-                        GroupName = reader.GetString(1),
-                        GroupNameAscii = reader.GetString(2),
+                        ProfessionId = reader.GetInt16(0),
+                        ProfessionName = reader.GetString(1),
+                        ProfessionNameAscii = reader.GetString(2),
                         CreatedBy = reader.GetInt32(3),
                         CreatedOn = reader.GetDateTime(4),
                         ModifiedBy = reader.GetInt32(5),
@@ -84,15 +84,15 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             {
                 await _connection.CloseAsync();
             }
-            return groups;
+            return professions;
         }
 
-        public Task<Group> ReadByIdAsync(short id)
+        public Task<Profession> ReadByIdAsync(short id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> UpdateAsync(Group group)
+        public Task<bool> UpdateAsync(Profession profession)
         {
             throw new NotImplementedException();
         }
