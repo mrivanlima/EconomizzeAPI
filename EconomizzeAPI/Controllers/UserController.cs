@@ -53,7 +53,7 @@ namespace EconomizzeAPI.Controllers
                 return NotFound();
             }
 
-            if(user.PasswordHash != userlogin.Password)
+            if (user.PasswordHash != userlogin.Password)
             {
                 return Unauthorized("Senha incorreta!");
             }

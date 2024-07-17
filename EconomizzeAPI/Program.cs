@@ -41,6 +41,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IStreetRepository, StreetRepository>();
 builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
 builder.Services.AddScoped<IUserGroupRepository, UserGroupRepository>();
+builder.Services.AddScoped<IUserLoginRepository, UserLoginRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
 
@@ -57,6 +58,9 @@ if (app.Environment.IsDevelopment())
 #if !DEBUG
 app.UseHttpsRedirection();
 #endif
+
+app.UseCors("AllowBlazorOrigin");
+
 app.UseAuthorization();
 
 app.MapControllers();

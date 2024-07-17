@@ -6,6 +6,7 @@ using EconomizzeAPI.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Npgsql;
 using System.Data;
+using System.Diagnostics;
 using System.Reflection.Emit;
 
 namespace EconomizzeAPI.Services.Repositories.Classes
@@ -25,7 +26,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
         public async Task<Tuple<UserSetUp, ErrorHelper>> CreateAsync(UserSetUp user)
         {
-
+            error.HasError = false;
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_setup", _connection);
 
             try
@@ -34,7 +35,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
 
                 cmd.Parameters.AddWithValue("p_date_of_birth", user.DateOfBirth.HasValue ? user.DateOfBirth.Value : DBNull.Value);
-                //postgres picks up timestamp, for taht reason datatypoe date in postgres must be done this way.
+                //postgres picks up timestamp, for that reason datatype date in postgres must be done this way.
                 cmd.Parameters[0].NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Date;
                 cmd.Parameters.AddWithValue("p_user_first_name", user.UserFirstName);
                 cmd.Parameters.AddWithValue("p_user_email", user.UserEmail);
@@ -56,7 +57,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_modified_by", user.ModifiedBy.HasValue ? user.ModifiedBy.Value : DBNull.Value);
 
                 cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
-                cmd.Parameters.AddWithValue("p_out_user_id", user.UserId).Direction = ParameterDirection.Output;
+				cmd.Parameters.AddWithValue("p_out_user_id", user.UserId).Direction = ParameterDirection.Output;
                 cmd.Parameters.AddWithValue("p_out_message", error.ErrorMessage).Direction = ParameterDirection.Output;
                 await _connection.OpenAsync();
 

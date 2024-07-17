@@ -7,7 +7,6 @@ namespace EconomizzeAPI.Services.Repositories.Interfaces
     public interface IUserRepository
     {
         Task<Tuple<UserSetUp, ErrorHelper>> CreateAsync(UserSetUp user);
-
         Task<UserDetailViewModel> ReadUserByUsername(string username);
         Task<State> ReadByIdAsync(int id);
     }
