@@ -33,6 +33,20 @@ namespace EconomizzeAPI.Controllers
 			return CreatedAtRoute("usuario", new { UserId = RegisterViewModel.Item1.UserId }, _mapper.Map<RegisterViewModel>(map));
 		}
 
+		[HttpPost("Auth")]
+		public async Task<ActionResult<RegisterViewModel>> AuthUser(RegisterViewModel register)
+		{
+			register.UserUniqueId = Guid.NewGuid();
+			var map = _mapper.Map<RegisterViewModel>(register);
+			var RegisterViewModel = await _userLoginRepository.AuthorizeAsync(map);
+			if (RegisterViewModel.Item2.HasError)
+			{
+				return BadRequest(RegisterViewModel.Item2.ErrorMessage);
+			}
+
+			return CreatedAtRoute("usuario", new { UserId = RegisterViewModel.Item1.UserId }, _mapper.Map<RegisterViewModel>(map));
+		}
+
 		[HttpGet("{UserId}", Name = "register")]
 		public async Task<ActionResult<RegisterViewModel>> GetById(short userId)
 		{

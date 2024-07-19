@@ -20,7 +20,7 @@ namespace EconomizzeAPI.Model
 		[Required(ErrorMessage = "Comfirmacao necessaria")]
 		[DataType(DataType.Password)]
 		//[RegularExpression(@"^[0-9]{10}$", ErrorMessage = "Phone number must be 10 digits.")]
-		[Compare("Password")]
+		[Compare("Password", ErrorMessage = "Comfirmacao necessaria, senhas diferentes")]
 		public string ConfirmPassword { get; set; } = string.Empty;
 	}
 }

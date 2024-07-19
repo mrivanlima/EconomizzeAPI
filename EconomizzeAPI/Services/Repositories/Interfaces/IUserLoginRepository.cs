@@ -7,5 +7,7 @@ namespace EconomizzeAPI.Services.Repositories.Interfaces
 	public interface IUserLoginRepository
 	{
 		Task<Tuple<RegisterViewModel, ErrorHelper>> CreateAsync(RegisterViewModel register);
+
+		Task<Tuple<RegisterViewModel, ErrorHelper>> AuthorizeAsync(RegisterViewModel register);
 	}
 }
