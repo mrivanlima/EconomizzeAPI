@@ -8,6 +8,6 @@ namespace EconomizzeAPI.Services.Repositories.Interfaces
 	{
 		Task<Tuple<RegisterViewModel, ErrorHelper>> CreateAsync(RegisterViewModel register);
 
-		Task<Tuple<RegisterViewModel, ErrorHelper>> AuthorizeAsync(RegisterViewModel register);
+		Task<UserLogin> AuthorizeAsync(UserLoginViewModel login);
 	}
 }

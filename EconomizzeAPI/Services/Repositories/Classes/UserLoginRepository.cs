@@ -61,31 +61,29 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			return new Tuple<RegisterViewModel, ErrorHelper>(register, error);
 		}
 
-		public async Task<Tuple<RegisterViewModel, ErrorHelper>> AuthorizeAsync(RegisterViewModel register)
+		public async Task<UserLogin> AuthorizeAsync(UserLoginViewModel login)
 		{
-			List<UserLogin> users = new List<UserLogin>();
-			NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_username_read", _connection);
+			NpgsqlDataReader? npgsqlDr = null;
+			NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_login_read(@username)", _connection);
+			UserLogin userLogin = new UserLogin();
+			cmd.Parameters.AddWithValue("@username", login.Username);
 
 			try
 			{
-				cmd.CommandType = CommandType.StoredProcedure;
-				//postgres picks up timestamp, for that reason datatype date in postgres must be done this way.
-				cmd.Parameters.AddWithValue("p_username", register.Username);
-				cmd.Parameters.AddWithValue("p_password_hash", register.Password);
-				cmd.Parameters.AddWithValue("p_password_salt", register.Password);
-
-				cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
-				//cmd.Parameters.AddWithValue("p_out_user_id", register.UserId).Direction = ParameterDirection.Output;
-				cmd.Parameters.AddWithValue("p_out_message", error.ErrorMessage).Direction = ParameterDirection.Output;
-
 				await _connection.OpenAsync();
+				npgsqlDr = await cmd.ExecuteReaderAsync();
 
-				error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
-				//if (!error.HasError)
-				//{
-				//	register.UserId = Convert.ToInt32(cmd.Parameters["p_out_user_id"].Value);
-				//}
-
+				if (await npgsqlDr.ReadAsync())
+				{
+					userLogin.UserId = npgsqlDr.GetInt32(npgsqlDr.GetOrdinal("user_id"));
+					userLogin.UserUniqueId = npgsqlDr.GetGuid(npgsqlDr.GetOrdinal("user_unique_id"));
+					userLogin.Username = login.Username;
+					userLogin.PasswordHash = npgsqlDr.GetString(npgsqlDr.GetOrdinal("password_hash"));
+					userLogin.PasswordSalt = npgsqlDr.GetString(npgsqlDr.GetOrdinal("password_salt"));
+					userLogin.IsVerified = npgsqlDr.GetBoolean(npgsqlDr.GetOrdinal("is_verified"));
+					userLogin.IsActive = npgsqlDr.GetBoolean(npgsqlDr.GetOrdinal("is_active"));
+					userLogin.IsLocked = npgsqlDr.GetBoolean(npgsqlDr.GetOrdinal("is_locked"));
+				}
 			}
 			catch (Exception ex)
 			{
@@ -94,8 +92,12 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			finally
 			{
 				await _connection.CloseAsync();
+				if (npgsqlDr != null)
+				{
+					await npgsqlDr.CloseAsync();
+				}
 			}
-			return new Tuple<RegisterViewModel, ErrorHelper>(register, error);
+			return userLogin;
 		}
 	}
 }
