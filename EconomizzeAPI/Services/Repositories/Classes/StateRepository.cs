@@ -75,10 +75,10 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 if (await npgsqlDr.ReadAsync())
                 {
                     state.StateId = id;
-                    state.StateName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("out_state_name"));
-                    state.StateUf = npgsqlDr.GetString(npgsqlDr.GetOrdinal("out_state_uf"));
-                    state.Longitude = npgsqlDr.GetDouble(npgsqlDr.GetOrdinal("out_longitude"));
-                    state.Latitude = npgsqlDr.GetDouble(npgsqlDr.GetOrdinal("out_latitude"));
+                    state.StateName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("state_name"));
+                    state.StateUf = npgsqlDr.GetString(npgsqlDr.GetOrdinal("state_uf"));
+                    state.Longitude = npgsqlDr.GetDouble(npgsqlDr.GetOrdinal("longitude"));
+                    state.Latitude = npgsqlDr.GetDouble(npgsqlDr.GetOrdinal("latitude"));
                 }
             }
             catch (Exception ex)
