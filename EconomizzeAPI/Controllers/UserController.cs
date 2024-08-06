@@ -41,7 +41,7 @@ namespace EconomizzeAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<StateViewModel>(user));
+            return Ok(_mapper.Map<UserViewModel>(user));
         }
 
         [HttpPost("{username}")]

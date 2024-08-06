@@ -82,9 +82,43 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             return new Tuple<UserSetUp, ErrorHelper>(user, error);
         }
 
-        public Task<State> ReadByIdAsync(int id)
+        public async Task<User> ReadByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            User user = new();
+            NpgsqlDataReader? npgsqlDr = null;
+            NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_read_by_id(@p_user_id)", _connection);
+            
+            cmd.Parameters.AddWithValue("@p_user_id", id);
+
+            try
+            {
+                await _connection.OpenAsync();
+                npgsqlDr = await cmd.ExecuteReaderAsync();
+
+                if (await npgsqlDr.ReadAsync())
+                {
+                    user.UserFirstName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_first_name"));
+                    user.UserMiddleName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_middle_name"));
+                    user.UserLastName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_last_name"));
+                    user.Cpf = npgsqlDr.GetString(npgsqlDr.GetOrdinal("cpf"));
+                    user.Rg = npgsqlDr.GetString(npgsqlDr.GetOrdinal("rg"));
+                    user.DateOfBirth = npgsqlDr.GetDateTime(npgsqlDr.GetOrdinal("date_of_birth"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+                if (npgsqlDr != null)
+                {
+                    await npgsqlDr.CloseAsync();
+                }
+            }
+
+            return user;
         }
 
         public async Task<UserDetailViewModel> ReadUserByUsername(string username)
