@@ -19,7 +19,7 @@ namespace Economizze.Library
         public short PasswordAttempts { get; set; }
         public bool ChangedInitialPassword { get; set; }
         public DateTime? LockedTime { get; set; }
-        public int? CreatedBy { get; set; }
+        public int? CreatedBy { get; private set; }
         public DateTime CreatedOn { get; set; }
         public int? ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }

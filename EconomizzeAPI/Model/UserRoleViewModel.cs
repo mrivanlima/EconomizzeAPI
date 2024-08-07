@@ -9,8 +9,8 @@ namespace EconomizzeAPI.Model
 
         public short RoleId { get; set; }
 
-
-        public int UserId { get; set; }
+		[Required(ErrorMessage = "usuario ID necessario")]
+		public int UserId { get; set; }
 
         public bool IsActive { get; set; } = true;
 
