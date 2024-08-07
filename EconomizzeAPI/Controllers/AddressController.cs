@@ -21,9 +21,9 @@ namespace EconomizzeAPI.Controllers
         public async Task<ActionResult<AddressDetailViewModel>> GetById(string zipCode)
         {
             var addressDetail = await _addressRepository.ReadByZipCodeAsync(zipCode);
-            if (addressDetail.StreetId == null)
+            if (addressDetail is null)
             {
-                return NotFound();
+                return NotFound("Cep nao encontrado!");
             }
 
             return Ok(_mapper.Map<AddressDetailViewModel>(addressDetail));

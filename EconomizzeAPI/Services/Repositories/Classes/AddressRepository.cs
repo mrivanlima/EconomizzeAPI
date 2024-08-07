@@ -10,6 +10,8 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
 
+        public AddressDetail? AddressDetail { get; set; }
+
         public AddressRepository(IConnectionService connect)
         {
             _connect = connect;
@@ -19,7 +21,6 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         {
             NpgsqlDataReader? npgsqlDr = null;
             NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.v_street_details WHERE ZIPCODE = @ZipCode", _connection);
-            AddressDetail addressDetail = new AddressDetail();
             cmd.Parameters.AddWithValue("@ZipCode", ZipCode);
 
             try
@@ -29,13 +30,14 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
                 if (await npgsqlDr.ReadAsync())
                 {
-                    addressDetail.StreetId = Convert.ToInt32(npgsqlDr["street_id"]);
-                    addressDetail.StreetName = npgsqlDr["street_name"].ToString();
-                    addressDetail.StreetNameAscii = npgsqlDr["street_name_ascii"].ToString();
-                    addressDetail.Zipcode = npgsqlDr["zipcode"].ToString();
-                    addressDetail.NeighborhoodName = npgsqlDr["neighborhood_name"].ToString();
-                    addressDetail.CityName = npgsqlDr["city_name"].ToString();
-                    addressDetail.StateName = npgsqlDr["state_name"].ToString();
+                    AddressDetail = new AddressDetail();
+                    AddressDetail.StreetId = Convert.ToInt32(npgsqlDr["street_id"]);
+                    AddressDetail.StreetName = npgsqlDr["street_name"].ToString();
+                    AddressDetail.StreetNameAscii = npgsqlDr["street_name_ascii"].ToString();
+                    AddressDetail.Zipcode = npgsqlDr["zipcode"].ToString();
+                    AddressDetail.NeighborhoodName = npgsqlDr["neighborhood_name"].ToString();
+                    AddressDetail.CityName = npgsqlDr["city_name"].ToString();
+                    AddressDetail.StateName = npgsqlDr["state_name"].ToString();
                 }
             }
             catch (Exception ex)
@@ -50,7 +52,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                     await npgsqlDr.CloseAsync();
                 }
             }
-            return addressDetail;
+            return AddressDetail;
         }
     }
 }
