@@ -1,4 +1,5 @@
 using Economizze.Library;
+using EconomizzeAPI.Services.Cache;
 using EconomizzeAPI.Services.DBServices;
 using EconomizzeAPI.Services.Repositories;
 using EconomizzeAPI.Services.Repositories.Classes;
@@ -44,6 +45,11 @@ builder.Services.AddScoped<IUserGroupRepository, UserGroupRepository>();
 builder.Services.AddScoped<IUserLoginRepository, UserLoginRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+
+
+
+
+builder.Services.AddScoped<IQuoteCacheService, QuoteCacheService>();
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
