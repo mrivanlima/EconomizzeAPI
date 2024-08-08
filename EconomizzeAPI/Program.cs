@@ -45,11 +45,12 @@ builder.Services.AddScoped<IUserGroupRepository, UserGroupRepository>();
 builder.Services.AddScoped<IUserLoginRepository, UserLoginRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+builder.Services.AddScoped<IAddressTypeRepository, AddressTypeRepository>();
 
 
 
 
-builder.Services.AddScoped<IQuoteCacheService, QuoteCacheService>();
+builder.Services.AddSingleton<IQuoteCacheService, QuoteCacheService>();
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
