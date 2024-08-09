@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EconomizzeAPI.Controllers
 {
 	[ApiController]
-	[Route("api/register")]
+	[Route("api/conta")]
 	public class UserLoginController : ControllerBase
 	{
 		private readonly IMapper _mapper;
@@ -33,7 +33,7 @@ namespace EconomizzeAPI.Controllers
 			return CreatedAtRoute("usuario", new { UserId = RegisterViewModel.Item1.UserId }, _mapper.Map<RegisterViewModel>(map));
 		}
 
-		[HttpPost("Auth")]
+		[HttpPost("autenticar")]
 		public async Task<ActionResult<UserLoginViewModel>> AuthUser(UserLoginViewModel login)
 		{
 			var map = _mapper.Map<UserLoginViewModel>(login);
