@@ -19,8 +19,8 @@ namespace EconomizzeAPI.Controllers
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 		}
 
-		[HttpPost]
-		public async Task<ActionResult<RegisterViewModel>> CreateUser(RegisterViewModel register)
+        [HttpPost("criar")]
+        public async Task<ActionResult<RegisterViewModel>> CreateUser(RegisterViewModel register)
 		{
 			register.UserUniqueId = Guid.NewGuid();
 			var map = _mapper.Map<RegisterViewModel>(register);
@@ -62,10 +62,10 @@ namespace EconomizzeAPI.Controllers
 			return Ok(_mapper.Map<UserLoginViewModel>(userLogin));
 		}
 
-		[HttpGet("{UserId}", Name = "register")]
+		[HttpGet("{UserId}")]
 		public async Task<ActionResult<RegisterViewModel>> GetById(short userId)
 		{
 			throw new NotImplementedException();
 		}
-	}
+    }
 }
