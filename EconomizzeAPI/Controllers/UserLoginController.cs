@@ -4,6 +4,10 @@ using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.Repositories.Classes;
 using EconomizzeAPI.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace EconomizzeAPI.Controllers
 {
@@ -13,8 +17,12 @@ namespace EconomizzeAPI.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly IUserLoginRepository _userLoginRepository;
-		public UserLoginController(IUserLoginRepository userLoginRepository, IMapper mapper)
+		private readonly IConfiguration _config;
+		public UserLoginController(IUserLoginRepository userLoginRepository, 
+			                       IMapper mapper,
+                                   IConfiguration config)
 		{
+			_config = config;
 			_userLoginRepository = userLoginRepository ?? throw new ArgumentNullException(nameof(userLoginRepository));
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 		}
@@ -36,6 +44,7 @@ namespace EconomizzeAPI.Controllers
 		[HttpPost("autenticar")]
 		public async Task<ActionResult<UserLoginViewModel>> AuthUser(UserLoginViewModel login)
 		{
+			string tokenValue = string.Empty;
 			var map = _mapper.Map<UserLoginViewModel>(login);
 			var userLogin = await _userLoginRepository.AuthorizeAsync(map);
 			if (userLogin.UserId == 0)
@@ -58,8 +67,31 @@ namespace EconomizzeAPI.Controllers
 			{
 				return Unauthorized("Senha incorreta.");
 			}
+			else
+			{
+				var claims = new[]
+				{
+					new Claim(JwtRegisteredClaimNames.Sub, _config["JwtSettings:Subject"]),
+					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+					new Claim("UserId", userLogin.UserId.ToString()),
+					new Claim("Username", userLogin.Username),
+					new Claim("UserUnique", userLogin.UserUniqueId.ToString()),
 
-			return Ok(_mapper.Map<UserLoginViewModel>(userLogin));
+				};
+
+				var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
+				var sigIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+				var token = new JwtSecurityToken(
+						_config["JwtSettings:Issuer"],
+						_config["JwtSettings:Audience"],
+						claims,
+						expires: DateTime.UtcNow.AddMinutes(1),
+						signingCredentials: sigIn
+					);
+				tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
+			}
+
+			return Ok(new { Token = tokenValue, UserLoginViewModel = _mapper.Map<UserLoginViewModel>(userLogin) });
 		}
 
 		[HttpGet("{UserId}")]
