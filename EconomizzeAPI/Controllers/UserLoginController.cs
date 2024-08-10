@@ -32,6 +32,12 @@ namespace EconomizzeAPI.Controllers
 		{
 			register.UserUniqueId = Guid.NewGuid();
 			var map = _mapper.Map<RegisterViewModel>(register);
+			map.Password = BCrypt.Net.BCrypt.HashPassword
+				(
+					register.UserUniqueId.ToString() + 
+				    map.Password + 
+					register.UserUniqueId.ToString()
+				);
 			var RegisterViewModel = await _userLoginRepository.CreateAsync(map);
 			if (RegisterViewModel.Item2.HasError)
 			{
@@ -44,7 +50,6 @@ namespace EconomizzeAPI.Controllers
 		[HttpPost("autenticar")]
 		public async Task<ActionResult<UserLoginViewModel>> AuthUser(UserLoginViewModel login)
 		{
-			string tokenValue = string.Empty;
 			var map = _mapper.Map<UserLoginViewModel>(login);
 			var userLogin = await _userLoginRepository.AuthorizeAsync(map);
 			if (userLogin.UserId == 0)
@@ -63,35 +68,18 @@ namespace EconomizzeAPI.Controllers
 			{
 				return Unauthorized("Conta suspensa.");
 			}
-			if (login.Password != userLogin.PasswordHash)
-			{
+            //if (login.Password != userLogin.PasswordHash)
+            if (!BCrypt.Net.BCrypt.Verify(userLogin.UserUniqueId.ToString() + 
+				                          login.Password +
+                                          userLogin.UserUniqueId.ToString(), userLogin.PasswordHash))
+            {
 				return Unauthorized("Senha incorreta.");
 			}
-			else
-			{
-				var claims = new[]
-				{
-					new Claim(JwtRegisteredClaimNames.Sub, _config["JwtSettings:Subject"]),
-					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-					new Claim("UserId", userLogin.UserId.ToString()),
-					new Claim("Username", userLogin.Username),
-					new Claim("UserUnique", userLogin.UserUniqueId.ToString()),
 
-				};
+			UserLoginViewModel toReturn = _mapper.Map<UserLoginViewModel>(userLogin);
+			toReturn.UserToken = CreateToken(userLogin);
 
-				var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
-				var sigIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-				var token = new JwtSecurityToken(
-						_config["JwtSettings:Issuer"],
-						_config["JwtSettings:Audience"],
-						claims,
-						expires: DateTime.UtcNow.AddMinutes(1),
-						signingCredentials: sigIn
-					);
-				tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
-			}
-
-			return Ok(new { Token = tokenValue, UserLoginViewModel = _mapper.Map<UserLoginViewModel>(userLogin) });
+            return Ok(toReturn);
 		}
 
 		[HttpGet("{UserId}")]
@@ -99,5 +87,29 @@ namespace EconomizzeAPI.Controllers
 		{
 			throw new NotImplementedException();
 		}
+
+		private string CreateToken(UserLogin userLogin)
+		{
+            var claims = new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, _config["JwtSettings:Subject"]),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim("UserId", userLogin.UserId.ToString()),
+                    new Claim("Username", userLogin.Username),
+                    new Claim("UserUnique", userLogin.UserUniqueId.ToString()),
+
+                };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]));
+            var sigIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                    _config["JwtSettings:Issuer"],
+                    _config["JwtSettings:Audience"],
+                    claims,
+                    expires: DateTime.UtcNow.AddMinutes(1),
+                    signingCredentials: sigIn
+                );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }
