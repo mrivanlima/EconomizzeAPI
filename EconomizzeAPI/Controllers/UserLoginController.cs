@@ -106,7 +106,7 @@ namespace EconomizzeAPI.Controllers
                     _config["JwtSettings:Issuer"],
                     _config["JwtSettings:Audience"],
                     claims,
-                    expires: DateTime.UtcNow.AddMinutes(1),
+                    expires: DateTime.UtcNow.AddHours(1),
                     signingCredentials: sigIn
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);

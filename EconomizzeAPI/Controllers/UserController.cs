@@ -2,6 +2,7 @@
 using Economizze.Library;
 using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EconomizzeAPI.Controllers
@@ -18,18 +19,18 @@ namespace EconomizzeAPI.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<UserSetUp>> CreateUser(UserSetUpViewModel user)
+        public async Task<ActionResult<UserViewModel>> CreateUser(UserViewModel userViewModel)
         {
-            user.UserUniqueId = Guid.NewGuid();
-            var map = _mapper.Map<UserSetUp>(user);
-            var userSetUpViewModel = await _userRepository.CreateAsync(map);
-            if (userSetUpViewModel.Item2.HasError)
+            var map = _mapper.Map<User>(userViewModel);
+            var user = await _userRepository.CreateAsync(map);
+            if (user.Item2.HasError)
             {
-                return BadRequest(userSetUpViewModel.Item2.ErrorMessage);
+                return BadRequest(user.Item2.ErrorMessage);
             }
 
-            return CreatedAtRoute("usuario", new { UserId = userSetUpViewModel.Item1.UserId }, _mapper.Map<UserSetUpViewModel>(map));
+            return CreatedAtRoute("usuario", new { UserId = user.Item1.UserId }, _mapper.Map<UserViewModel>(map));
         }
 
         [HttpGet("{userId}", Name = "usuario")]

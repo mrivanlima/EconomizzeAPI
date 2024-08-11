@@ -8,7 +8,7 @@ namespace EconomizzeAPI.Profiles
     {
         public UserProfile()
         {
-            CreateMap<UserSetUp, UserSetUpViewModel>().ReverseMap();
+            //CreateMap<UserSetUp, UserSetUpViewModel>().ReverseMap();
             CreateMap<User, UserViewModel>().ReverseMap();
         }
     }
