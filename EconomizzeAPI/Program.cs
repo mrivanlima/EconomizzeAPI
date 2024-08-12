@@ -12,6 +12,8 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
+
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -46,6 +48,31 @@ builder.Services.AddAuthentication(x =>
     };
 
 });
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+});
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddDefaultPolicy(
+//            builder =>
+//            {
+
+//                builder.WithOrigins("http://example.com",
+//                                    "http://www.contoso.com");
+//            });
+//    //options.AddPolicy("AllowBlazorOrigin", policy =>
+//    //{
+//    //    policy.AllowAnyOrigin()
+//    //          .AllowAnyMethod()
+//    //          .AllowAnyHeader();
+//    //});
+//});
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IConnectionService, ConnectionService>();
@@ -93,16 +120,18 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
 	app.UseSwagger();
 	app.UseSwaggerUI();
-}
+//}
 #if !DEBUG
 app.UseHttpsRedirection();
 #endif
 
-app.UseCors("AllowBlazorOrigin");
+//app.UseCors("AllowBlazorOrigin");
+app.UseCors(options =>
+    options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 app.UseAuthentication();
 app.UseAuthorization();
