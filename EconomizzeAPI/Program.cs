@@ -57,22 +57,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddDefaultPolicy(
-//            builder =>
-//            {
-
-//                builder.WithOrigins("http://example.com",
-//                                    "http://www.contoso.com");
-//            });
-//    //options.AddPolicy("AllowBlazorOrigin", policy =>
-//    //{
-//    //    policy.AllowAnyOrigin()
-//    //          .AllowAnyMethod()
-//    //          .AllowAnyHeader();
-//    //});
-//});
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IConnectionService, ConnectionService>();
@@ -129,7 +113,6 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 #endif
 
-//app.UseCors("AllowBlazorOrigin");
 app.UseCors(options =>
     options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
