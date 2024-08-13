@@ -89,6 +89,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                     user.Cpf = npgsqlDr.GetString(npgsqlDr.GetOrdinal("cpf"));
                     user.Rg = npgsqlDr.GetString(npgsqlDr.GetOrdinal("rg"));
                     user.DateOfBirth = npgsqlDr.GetDateTime(npgsqlDr.GetOrdinal("date_of_birth"));
+                    user.PhoneNumber = npgsqlDr.GetString(npgsqlDr.GetOrdinal("phone_number"));
                 }
             }
             catch (Exception ex)

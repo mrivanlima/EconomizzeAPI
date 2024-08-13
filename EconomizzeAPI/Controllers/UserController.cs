@@ -34,7 +34,7 @@ namespace EconomizzeAPI.Controllers
         }
 
         [HttpGet("{userId}", Name = "usuario")]
-        public async Task<ActionResult<UserSetUpViewModel>> GetById(int userId)
+        public async Task<ActionResult<UserViewModel>> GetById(int userId)
         {
             var user = await _userRepository.ReadByIdAsync(userId);
             if (user == null)

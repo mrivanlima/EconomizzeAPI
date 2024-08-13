@@ -67,7 +67,7 @@ builder.Services.AddScoped<IConnectionService, ConnectionService>();
 //User
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserGroupRepository, UserGroupRepository>();
-builder.Services.AddScoped<IUserLoginRepository, UserLoginRepository>();
+builder.Services.AddTransient<IUserLoginRepository, UserLoginRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
 builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
