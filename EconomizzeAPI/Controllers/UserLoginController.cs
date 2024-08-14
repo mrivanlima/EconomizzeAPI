@@ -27,6 +27,17 @@ namespace EconomizzeAPI.Controllers
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 		}
 
+        [HttpGet("verificar/{userId}")]
+        public async Task<ActionResult<RegisterViewModel>> VerifyUser(int userId, [FromQuery] Guid userUniqueId)
+        {
+			var results = await _userLoginRepository.UserVerifyAsync(userId, userUniqueId);
+			if(results.HasError)
+			{
+				return BadRequest(results.ErrorMessage);
+			}
+			return Ok();
+        }
+
         [HttpPost("criar")]
         public async Task<ActionResult<RegisterViewModel>> CreateUser(RegisterViewModel register)
 		{

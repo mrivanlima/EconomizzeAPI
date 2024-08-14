@@ -4,6 +4,7 @@ using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.DBServices;
 using EconomizzeAPI.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Win32;
 using Npgsql;
 using System.Data;
 
@@ -66,7 +67,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			NpgsqlDataReader? npgsqlDr = null;
 			NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_login_read(@username)", _connection);
 			UserLogin userLogin = new UserLogin();
-			cmd.Parameters.AddWithValue("@username", login.Username);
+			cmd.Parameters.AddWithValue("@username", login.Username); 
 
 			try
 			{
@@ -99,5 +100,34 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			}
 			return userLogin;
 		}
-	}
+
+        public async Task<ErrorHelper> UserVerifyAsync(int userId, Guid userUniqueId)
+		{
+            NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_confirm_update", _connection);
+
+            try
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("p_user_id", userId);
+                cmd.Parameters.AddWithValue("p_user_unique_id", userUniqueId);
+                cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("p_out_message", error.ErrorMessage).Direction = ParameterDirection.Output;
+                await _connection.OpenAsync();
+
+                cmd.ExecuteNonQuery();
+
+                error.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
+                error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return error;
+		}
+    }
 }

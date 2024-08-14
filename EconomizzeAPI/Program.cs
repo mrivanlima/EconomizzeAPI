@@ -13,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
 
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                      .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+
 
 // Add services to the container.
 
@@ -104,11 +108,11 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
+if (app.Environment.IsDevelopment())
+{
 	app.UseSwagger();
 	app.UseSwaggerUI();
-//}
+}
 #if !DEBUG
 app.UseHttpsRedirection();
 #endif

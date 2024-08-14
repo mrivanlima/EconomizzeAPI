@@ -8,7 +8,7 @@ namespace EconomizzeAPI.Services.DBServices
 		public ConnectionService()
 		{
 			var configuration = GetConfiguration();
-			connection = new NpgsqlConnection(configuration.GetSection("ConnectionStrings").GetSection("Postgresql").Value);
+			connection = new NpgsqlConnection(configuration.GetSection("ConnectionStrings").GetSection("PostgreSql").Value);
 
 		}
 
