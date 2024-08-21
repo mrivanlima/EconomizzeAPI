@@ -9,6 +9,7 @@ namespace Economizze.Library
     public class UserAddress
     {
         public int UserId { get; set; }
+        public int AddressId { get; set; }
         public int StreetId { get; set; }
         public short AddressTypeId { get; set; }
         public string Complement { get; set; } = string.Empty;

@@ -70,7 +70,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
         public async Task<User> ReadByIdAsync(int id)
         {
-            User user = new();
+            User? user = null;
             NpgsqlDataReader? npgsqlDr = null;
             NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_read_by_id(@p_user_id)", _connection);
             
@@ -83,6 +83,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
                 if (await npgsqlDr.ReadAsync())
                 {
+                    user = new();
                     user.UserFirstName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_first_name"));
                     user.UserMiddleName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_middle_name"));
                     user.UserLastName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_last_name"));

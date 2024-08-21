@@ -32,8 +32,9 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_complement", userAddress.Complement);
                 cmd.Parameters.AddWithValue("p_address_type_id", userAddress.AddressTypeId);
                 cmd.Parameters.AddWithValue("p_main_address", userAddress.MainAddress);
+                cmd.Parameters.AddWithValue("p_out_address_id", userAddress.AddressId).Direction = ParameterDirection.Output;
 
-                
+
                 cmd.Parameters.AddWithValue("p_created_by", userAddress.CreatedBy);
                 cmd.Parameters.AddWithValue("p_modified_by", userAddress.ModifiedBy);
                 cmd.Parameters.AddWithValue("p_error", Error.HasError).Direction = ParameterDirection.InputOutput;
@@ -42,6 +43,10 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.ExecuteNonQuery();
 
                 Error.HasError = (bool)cmd.Parameters["p_error"].Value;
+                if (!Error.HasError)
+                {
+                    userAddress.AddressId = (int)cmd.Parameters["p_out_address_id"].Value;
+                }
 
             }
             catch (Exception ex)
