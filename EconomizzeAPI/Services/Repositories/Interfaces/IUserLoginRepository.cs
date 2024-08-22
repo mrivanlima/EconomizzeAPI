@@ -8,8 +8,9 @@ namespace EconomizzeAPI.Services.Repositories.Interfaces
 	{
 		Task<Tuple<RegisterViewModel, ErrorHelper>> CreateAsync(RegisterViewModel register);
 
-		Task<UserLogin> AuthorizeAsync(UserLoginViewModel login);
-		Task<ErrorHelper> UserVerifyAsync(int userId, Guid userUniqueId);
+        Task<UserLogin> ReadUserByUserName(UserLoginViewModel login);
+
+        Task<ErrorHelper> UserVerifyAsync(int userId, Guid userUniqueId);
 
 
     }

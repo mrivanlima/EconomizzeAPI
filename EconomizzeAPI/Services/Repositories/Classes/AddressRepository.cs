@@ -10,12 +10,13 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
 
-        public AddressDetail? AddressDetail { get; set; }
+        public AddressDetail AddressDetail { get; set; }
 
         public AddressRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
+            AddressDetail = new();
         }
         public async Task<AddressDetail> ReadByZipCodeAsync(string ZipCode)
         {
@@ -30,7 +31,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
                 if (await npgsqlDr.ReadAsync())
                 {
-                    AddressDetail = new AddressDetail();
+
                     AddressDetail.StreetId = Convert.ToInt32(npgsqlDr["street_id"]);
                     AddressDetail.StreetName = npgsqlDr["street_name"].ToString();
                     AddressDetail.StreetNameAscii = npgsqlDr["street_name_ascii"].ToString();

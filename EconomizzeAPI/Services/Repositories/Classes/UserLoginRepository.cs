@@ -62,7 +62,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			return new Tuple<RegisterViewModel, ErrorHelper>(register, error);
 		}
 
-		public async Task<UserLogin> AuthorizeAsync(UserLoginViewModel login)
+		public async Task<UserLogin> ReadUserByUserName(UserLoginViewModel login)
 		{
 			NpgsqlDataReader? npgsqlDr = null;
 			NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_login_read(@username)", _connection);
@@ -100,6 +100,8 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			}
 			return userLogin;
 		}
+
+        
 
         public async Task<ErrorHelper> UserVerifyAsync(int userId, Guid userUniqueId)
 		{

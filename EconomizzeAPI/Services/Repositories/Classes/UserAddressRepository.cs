@@ -44,11 +44,15 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 if (!Error.HasError)
                 {
                     userAddress.AddressId = (int)(cmd.Parameters["p_out_address_id"].Value ?? -1);
+                    if(userAddress.AddressId == -1)
+                    {
+                        throw new Exception("Address Id can not be negative!");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Error.ErrorMessage = ex.Message;
                 Error.HasError = true;
             }
             finally

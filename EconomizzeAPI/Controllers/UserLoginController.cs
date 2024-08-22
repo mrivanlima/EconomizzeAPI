@@ -62,7 +62,7 @@ namespace EconomizzeAPI.Controllers
 		public async Task<ActionResult<UserLoginViewModel>> AuthUser(UserLoginViewModel login)
 		{
 			var map = _mapper.Map<UserLoginViewModel>(login);
-			var userLogin = await _userLoginRepository.AuthorizeAsync(map);
+			var userLogin = await _userLoginRepository.ReadUserByUserName(map);
 			if (userLogin.UserId == 0)
 			{
 				return NotFound("Usuario nao encontrado");
@@ -93,9 +93,35 @@ namespace EconomizzeAPI.Controllers
             return Ok(toReturn);
 		}
 
-		[HttpGet("{UserId}")]
+        [HttpPost("buscar")]
+        public async Task<ActionResult<UserLoginViewModel>> SearchUser(UserLoginViewModel login)
+        {
+            var map = _mapper.Map<UserLoginViewModel>(login);
+            var userLogin = await _userLoginRepository.ReadUserByUserName(map);
+            if (userLogin.UserId == 0)
+            {
+                return NotFound("Usuario nao encontrado");
+            }
+            if (!userLogin.IsActive)
+            {
+                return Unauthorized("Conta nao ativada.");
+            }
+            if (!userLogin.IsVerified)
+            {
+                return Unauthorized("Verifique link no email.");
+            }
+            if (userLogin.IsLocked)
+            {
+                return Unauthorized("Conta suspensa.");
+            }
+            
+            return Ok();
+        }
+
+        [HttpGet("{UserId}")]
 		public async Task<ActionResult<RegisterViewModel>> GetById(short userId)
 		{
+
 			throw new NotImplementedException();
 		}
 
