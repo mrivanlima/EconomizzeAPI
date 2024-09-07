@@ -49,6 +49,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                         throw new Exception("Address Id can not be negative!");
                     }
                 }
+                else throw new Exception("Endereco ja cadastrado!");
             }
             catch (Exception ex)
             {
