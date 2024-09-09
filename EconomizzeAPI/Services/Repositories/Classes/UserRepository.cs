@@ -84,6 +84,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 if (await npgsqlDr.ReadAsync())
                 {
                     user = new();
+                    user.UserId = npgsqlDr.GetInt32(npgsqlDr.GetOrdinal("user_id"));
                     user.UserFirstName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_first_name"));
                     user.UserMiddleName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_middle_name"));
                     user.UserLastName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_last_name"));
@@ -91,6 +92,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                     user.Rg = npgsqlDr.GetString(npgsqlDr.GetOrdinal("rg"));
                     user.DateOfBirth = npgsqlDr.GetDateTime(npgsqlDr.GetOrdinal("date_of_birth"));
                     user.PhoneNumber = npgsqlDr.GetString(npgsqlDr.GetOrdinal("phone_number"));
+
                 }
             }
             catch (Exception ex)
