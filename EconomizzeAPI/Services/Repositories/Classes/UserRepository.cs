@@ -92,6 +92,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                     user.Rg = npgsqlDr.GetString(npgsqlDr.GetOrdinal("rg"));
                     user.DateOfBirth = npgsqlDr.GetDateTime(npgsqlDr.GetOrdinal("date_of_birth"));
                     user.PhoneNumber = npgsqlDr.GetString(npgsqlDr.GetOrdinal("phone_number"));
+
                 }
             }
             catch (Exception ex)
