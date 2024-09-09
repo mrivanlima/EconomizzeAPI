@@ -37,6 +37,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_created_by", userAddress.CreatedBy);
                 cmd.Parameters.AddWithValue("p_modified_by", userAddress.ModifiedBy);
                 cmd.Parameters.AddWithValue("p_error", Error.HasError).Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("p_out_message", Error.ErrorMessage).Direction = ParameterDirection.Output;
                 await _connection.OpenAsync();
                 cmd.ExecuteNonQuery();
 
@@ -44,12 +45,11 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 if (!Error.HasError)
                 {
                     userAddress.AddressId = (int)(cmd.Parameters["p_out_address_id"].Value ?? -1);
-                    if(userAddress.AddressId == -1)
-                    {
-                        throw new Exception("Address Id can not be negative!");
-                    }
                 }
-                else throw new Exception("Endereco ja cadastrado!");
+                else
+                {
+                    Error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+                }
             }
             catch (Exception ex)
             {

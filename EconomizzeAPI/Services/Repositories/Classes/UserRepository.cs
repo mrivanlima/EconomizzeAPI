@@ -84,6 +84,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 if (await npgsqlDr.ReadAsync())
                 {
                     user = new();
+                    user.UserId = npgsqlDr.GetInt32(npgsqlDr.GetOrdinal("user_id"));
                     user.UserFirstName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_first_name"));
                     user.UserMiddleName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_middle_name"));
                     user.UserLastName = npgsqlDr.GetString(npgsqlDr.GetOrdinal("user_last_name"));
