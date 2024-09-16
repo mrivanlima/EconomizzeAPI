@@ -24,7 +24,7 @@ namespace EconomizzeAPI.Model
 
         [Required(ErrorMessage = "Password hash is required")]
         [StringLength(100, ErrorMessage = "Password hash must be between 1 and 100 characters", MinimumLength = 1)]
-        //[RegularExpression(@"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()-_=+[\]{}|\\;:'"",.<>/?]).+$", ErrorMessage = "Password hash must contain at least one letter, one number, and one special character")]
+        //[RegularExpression(@"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()-_=+[\]{}|\\;:'"",.<>/?]).+$", Message = "Password hash must contain at least one letter, one number, and one special character")]
         public string PasswordHash { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password salt is required")]

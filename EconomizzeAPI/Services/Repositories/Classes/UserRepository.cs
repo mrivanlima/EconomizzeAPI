@@ -8,6 +8,7 @@ using Npgsql;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection.Emit;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EconomizzeAPI.Services.Repositories.Classes
 {
@@ -15,18 +16,18 @@ namespace EconomizzeAPI.Services.Repositories.Classes
     {
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
-        private ErrorHelper error;
+        private StatusHelper status;
 
         public UserRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
-            error = new ErrorHelper();
+            status = new StatusHelper();
         }
 
-        public async Task<Tuple<User, ErrorHelper>> CreateAsync(User user)
+        public async Task<Tuple<User, StatusHelper>> CreateAsync(User user)
         {
-            error.HasError = false;
+            status.HasError = false;
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_create", _connection);
 
             try
@@ -47,25 +48,26 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_created_by", user.CreatedBy.HasValue ? user.CreatedBy.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("p_modified_by", user.ModifiedBy.HasValue ? user.ModifiedBy.Value : DBNull.Value);
 
-                cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
-                cmd.Parameters.AddWithValue("p_out_message", error.ErrorMessage).Direction = ParameterDirection.Output;
+                cmd.Parameters.AddWithValue("p_error", status.HasError).Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("p_out_message", status.Message).Direction = ParameterDirection.Output;
                 await _connection.OpenAsync();
 
                 cmd.ExecuteNonQuery();
 
-                error.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
-                error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+                status.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
+                status.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
              
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                status.Message = ex.Message;
+                status.HasError = true;
             }
             finally
             {
                 await _connection.CloseAsync();
             }
-            return new Tuple<User, ErrorHelper>(user, error);
+            return new Tuple<User, StatusHelper>(user, status);
         }
 
         public async Task<User> ReadByIdAsync(int id)

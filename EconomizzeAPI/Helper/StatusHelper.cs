@@ -1,8 +1,8 @@
 ﻿namespace EconomizzeAPI.Helper
 {
-    public class ErrorHelper
+    public class StatusHelper
     {
         public bool HasError { get; set; } = false;
-        public string ErrorMessage { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
     }
 }

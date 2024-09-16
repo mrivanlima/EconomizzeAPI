@@ -13,7 +13,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
     {
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
-        public ErrorHelper Error;
+        public StatusHelper Error;
 
         public UserAddressRepository(IConnectionService connect)
         {
@@ -21,7 +21,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
             Error = new();
         }
-        public async Task<Tuple<UserAddress, ErrorHelper>> CreateAsync(UserAddress userAddress)
+        public async Task<Tuple<UserAddress, StatusHelper>> CreateAsync(UserAddress userAddress)
         {
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_address_create", _connection);
 
@@ -37,7 +37,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_created_by", userAddress.CreatedBy);
                 cmd.Parameters.AddWithValue("p_modified_by", userAddress.ModifiedBy);
                 cmd.Parameters.AddWithValue("p_error", Error.HasError).Direction = ParameterDirection.InputOutput;
-                cmd.Parameters.AddWithValue("p_out_message", Error.ErrorMessage).Direction = ParameterDirection.Output;
+                cmd.Parameters.AddWithValue("p_out_message", Error.Message).Direction = ParameterDirection.Output;
                 await _connection.OpenAsync();
                 cmd.ExecuteNonQuery();
 
@@ -48,19 +48,19 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 }
                 else
                 {
-                    Error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+                    Error.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
                 }
             }
             catch (Exception ex)
             {
-                Error.ErrorMessage = ex.Message;
+                Error.Message = ex.Message;
                 Error.HasError = true;
             }
             finally
             {
                 await _connection.CloseAsync();
             }
-            return new Tuple<UserAddress, ErrorHelper>(userAddress, Error);
+            return new Tuple<UserAddress, StatusHelper>(userAddress, Error);
         }
 
         public Task<IEnumerable<UserAddress>> ReadAllAsync()

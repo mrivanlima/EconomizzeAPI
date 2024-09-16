@@ -26,7 +26,7 @@ namespace EconomizzeAPI.Controllers
             var model = await _userAddressRepository.CreateAsync(map);
             if (model.Item2.HasError)
             {
-                return BadRequest(model.Item2.ErrorMessage);
+                return BadRequest(model.Item2.Message);
             }
 
             return CreatedAtRoute("usuarioendereco", userAddress, _mapper.Map<UserAddressViewModel>(map));

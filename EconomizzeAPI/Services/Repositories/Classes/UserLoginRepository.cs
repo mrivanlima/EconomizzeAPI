@@ -14,16 +14,16 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 	{
 		private readonly IConnectionService _connect;
 		private readonly NpgsqlConnection _connection;
-		private ErrorHelper error;
+		private StatusHelper error;
 
 		public UserLoginRepository(IConnectionService connect)
 		{
 			_connect = connect;
 			_connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
-			error = new ErrorHelper();
+			error = new StatusHelper();
 		}
 
-		public async Task<Tuple<RegisterViewModel, ErrorHelper>> CreateAsync(RegisterViewModel register)
+		public async Task<Tuple<RegisterViewModel, StatusHelper>> CreateAsync(RegisterViewModel register)
 		{
 			NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_create", _connection);
 
@@ -38,13 +38,13 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
 				cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
 				cmd.Parameters.AddWithValue("p_out_user_id", register.UserId).Direction = ParameterDirection.Output;
-				cmd.Parameters.AddWithValue("p_out_message", error.ErrorMessage).Direction = ParameterDirection.Output;
+				cmd.Parameters.AddWithValue("p_out_message", error.Message).Direction = ParameterDirection.Output;
 				await _connection.OpenAsync();
 
 				cmd.ExecuteNonQuery();
 
 				error.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
-				error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+				error.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
 				if (!error.HasError)
 				{
 					register.UserId = Convert.ToInt32(cmd.Parameters["p_out_user_id"].Value);
@@ -59,7 +59,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			{
 				await _connection.CloseAsync();
 			}
-			return new Tuple<RegisterViewModel, ErrorHelper>(register, error);
+			return new Tuple<RegisterViewModel, StatusHelper>(register, error);
 		}
 
 		public async Task<UserLogin> ReadUserByUserName(UserLoginViewModel login)
@@ -103,7 +103,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
         
 
-        public async Task<ErrorHelper> UserVerifyAsync(int userId, Guid userUniqueId)
+        public async Task<StatusHelper> UserVerifyAsync(int userId, Guid userUniqueId)
 		{
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_confirm_update", _connection);
 
@@ -113,13 +113,13 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_user_id", userId);
                 cmd.Parameters.AddWithValue("p_user_unique_id", userUniqueId);
                 cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
-                cmd.Parameters.AddWithValue("p_out_message", error.ErrorMessage).Direction = ParameterDirection.Output;
+                cmd.Parameters.AddWithValue("p_out_message", error.Message).Direction = ParameterDirection.Output;
                 await _connection.OpenAsync();
 
                 cmd.ExecuteNonQuery();
 
                 error.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
-                error.ErrorMessage = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+                error.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
             }
             catch (Exception ex)
             {
