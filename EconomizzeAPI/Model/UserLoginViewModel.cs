@@ -12,7 +12,7 @@ namespace EconomizzeAPI.Model
 
 		[Required(ErrorMessage = "Senha necessaria")]
 		[DataType(DataType.Password)]
-		//[RegularExpression(@"^[0-9]{10}$", ErrorMessage = "Phone number must be 10 digits.")]
+		//[RegularExpression(@"^[0-9]{10}$", Message = "Phone number must be 10 digits.")]
 		public string Password { get; set; } = string.Empty;
 
 		public string UserToken { get; set; } = string.Empty;

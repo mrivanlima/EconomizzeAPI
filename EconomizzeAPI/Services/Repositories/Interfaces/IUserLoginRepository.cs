@@ -6,11 +6,11 @@ namespace EconomizzeAPI.Services.Repositories.Interfaces
 {
 	public interface IUserLoginRepository
 	{
-		Task<Tuple<RegisterViewModel, ErrorHelper>> CreateAsync(RegisterViewModel register);
+		Task<Tuple<RegisterViewModel, StatusHelper>> CreateAsync(RegisterViewModel register);
 
         Task<UserLogin> ReadUserByUserName(UserLoginViewModel login);
 
-        Task<ErrorHelper> UserVerifyAsync(int userId, Guid userUniqueId);
+        Task<StatusHelper> UserVerifyAsync(int userId, Guid userUniqueId);
 
 
     }

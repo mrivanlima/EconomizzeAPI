@@ -33,7 +33,7 @@ namespace EconomizzeAPI.Controllers
 			var results = await _userLoginRepository.UserVerifyAsync(userId, userUniqueId);
 			if(results.HasError)
 			{
-				return BadRequest(results.ErrorMessage);
+				return BadRequest(results.Message);
 			}
 			return Ok();
         }
@@ -52,7 +52,7 @@ namespace EconomizzeAPI.Controllers
 			var RegisterViewModel = await _userLoginRepository.CreateAsync(map);
 			if (RegisterViewModel.Item2.HasError)
 			{
-				return BadRequest(RegisterViewModel.Item2.ErrorMessage);
+				return BadRequest(RegisterViewModel.Item2.Message);
 			}
 
 			return CreatedAtRoute("usuario", new { UserId = RegisterViewModel.Item1.UserId }, _mapper.Map<RegisterViewModel>(map));

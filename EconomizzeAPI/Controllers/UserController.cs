@@ -19,7 +19,7 @@ namespace EconomizzeAPI.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        [Authorize]
+        ///[Authorize]
         [HttpPost]
         public async Task<ActionResult<UserViewModel>> CreateUser(UserViewModel userViewModel)
         {
@@ -27,10 +27,13 @@ namespace EconomizzeAPI.Controllers
             var user = await _userRepository.CreateAsync(map);
             if (user.Item2.HasError)
             {
-                return BadRequest(user.Item2.ErrorMessage);
+                return BadRequest( user.Item2.Message);
             }
 
-            return CreatedAtRoute("usuario", new { UserId = user.Item1.UserId }, _mapper.Map<UserViewModel>(map));
+            return CreatedAtRoute("usuario",
+
+                new { UserId = user.Item1.UserId },
+                _mapper.Map<UserViewModel>(map));
         }
 
         [HttpGet("{userId}", Name = "usuario")]
