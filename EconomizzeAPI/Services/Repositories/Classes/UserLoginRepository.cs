@@ -14,16 +14,18 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 	{
 		private readonly IConnectionService _connect;
 		private readonly NpgsqlConnection _connection;
-		private StatusHelper error;
+		private StatusHelper status;
 
-		public UserLoginRepository(IConnectionService connect)
+        #region CONSTRUCTOR
+        public UserLoginRepository(IConnectionService connect)
 		{
 			_connect = connect;
 			_connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
-			error = new StatusHelper();
+			status = new StatusHelper();
 		}
+        #endregion
 
-		public async Task<Tuple<RegisterViewModel, StatusHelper>> CreateAsync(RegisterViewModel register)
+        public async Task<Tuple<RegisterViewModel, StatusHelper>> CreateAsync(RegisterViewModel register)
 		{
 			NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_create", _connection);
 
@@ -36,16 +38,16 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 				cmd.Parameters.AddWithValue("p_password_hash", register.Password);
 				cmd.Parameters.AddWithValue("p_password_salt", register.Password);
 
-				cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
+				cmd.Parameters.AddWithValue("p_error", status.HasError).Direction = ParameterDirection.InputOutput;
 				cmd.Parameters.AddWithValue("p_out_user_id", register.UserId).Direction = ParameterDirection.Output;
-				cmd.Parameters.AddWithValue("p_out_message", error.Message).Direction = ParameterDirection.Output;
+				cmd.Parameters.AddWithValue("p_out_message", status.Message).Direction = ParameterDirection.Output;
 				await _connection.OpenAsync();
 
 				cmd.ExecuteNonQuery();
 
-				error.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
-				error.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
-				if (!error.HasError)
+				status.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
+				status.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+				if (!status.HasError)
 				{
 					register.UserId = Convert.ToInt32(cmd.Parameters["p_out_user_id"].Value);
 				}
@@ -59,7 +61,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			{
 				await _connection.CloseAsync();
 			}
-			return new Tuple<RegisterViewModel, StatusHelper>(register, error);
+			return new Tuple<RegisterViewModel, StatusHelper>(register, status);
 		}
 
 		public async Task<UserLogin> ReadUserByUserName(UserLoginViewModel login)
@@ -101,7 +103,50 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			return userLogin;
 		}
 
-        
+        public async Task<UserLogin> ReadByIdAsync(int id)
+        {
+            UserLogin? userLogin = null;
+            NpgsqlDataReader? npgsqlDr = null;
+            NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_login_read_by_id(@p_user_id)", _connection);
+
+            cmd.Parameters.AddWithValue("@p_user_id", id);
+
+            try
+            {
+                await _connection.OpenAsync();
+                npgsqlDr = await cmd.ExecuteReaderAsync();
+
+                if (await npgsqlDr.ReadAsync())
+                {
+                    userLogin = new();
+                    userLogin.UserId = npgsqlDr.GetInt32(npgsqlDr.GetOrdinal("user_id"));
+                    userLogin.UserUniqueId = npgsqlDr.GetGuid(npgsqlDr.GetOrdinal("user_unique_id"));
+                    userLogin.Username = npgsqlDr.GetString(npgsqlDr.GetOrdinal("username"));
+                    userLogin.PasswordHash = npgsqlDr.GetString(npgsqlDr.GetOrdinal("password_hash"));
+                    userLogin.PasswordSalt = npgsqlDr.GetString(npgsqlDr.GetOrdinal("password_salt"));
+                    userLogin.IsVerified = npgsqlDr.GetBoolean(npgsqlDr.GetOrdinal("is_verified"));
+                    userLogin.IsActive = npgsqlDr.GetBoolean(npgsqlDr.GetOrdinal("is_active"));
+                    userLogin.IsLocked = npgsqlDr.GetBoolean(npgsqlDr.GetOrdinal("is_locked"));
+                    userLogin.PasswordAttempts = npgsqlDr.GetInt16(npgsqlDr.GetOrdinal("password_attempts"));
+                    userLogin.ChangedInitialPassword = npgsqlDr.GetBoolean(npgsqlDr.GetOrdinal("changed_initial_password"));
+                    //userLogin.LockedTime = npgsqlDr.GetDateTime(npgsqlDr.GetOrdinal("locked_time"));
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+                if (npgsqlDr != null)
+                {
+                    await npgsqlDr.CloseAsync();
+                }
+            }
+
+            return userLogin;
+        }
 
         public async Task<StatusHelper> UserVerifyAsync(int userId, Guid userUniqueId)
 		{
@@ -112,14 +157,14 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("p_user_id", userId);
                 cmd.Parameters.AddWithValue("p_user_unique_id", userUniqueId);
-                cmd.Parameters.AddWithValue("p_error", error.HasError).Direction = ParameterDirection.InputOutput;
-                cmd.Parameters.AddWithValue("p_out_message", error.Message).Direction = ParameterDirection.Output;
+                cmd.Parameters.AddWithValue("p_error", status.HasError).Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("p_out_message", status.Message).Direction = ParameterDirection.Output;
                 await _connection.OpenAsync();
 
                 cmd.ExecuteNonQuery();
 
-                error.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
-                error.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+                status.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
+                status.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
             }
             catch (Exception ex)
             {
@@ -129,7 +174,44 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             {
                 await _connection.CloseAsync();
             }
-            return error;
+            return status;
 		}
+
+		public async Task<Tuple<LoggedInPasswordViewModel, StatusHelper>> ChangeUserPassword(LoggedInPasswordViewModel userLogin)
+		{
+            NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_update_password", _connection);
+
+            try
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                //postgres picks up timestamp, for that reason datatype date in postgres must be done this way.
+                cmd.Parameters.AddWithValue("p_user_id", userLogin.UserId);
+                cmd.Parameters.AddWithValue("p_password_hash", userLogin.NewPassword);
+                cmd.Parameters.AddWithValue("p_password_salt", userLogin.NewPassword);
+
+                cmd.Parameters.AddWithValue("p_out_message", status.Message).Direction = ParameterDirection.Output;
+                cmd.Parameters.AddWithValue("p_error", status.HasError).Direction = ParameterDirection.InputOutput;
+                await _connection.OpenAsync();
+
+                cmd.ExecuteNonQuery();
+
+                status.HasError = (bool)(cmd.Parameters["p_error"].Value ?? false);
+                status.Message = cmd.Parameters["p_out_message"].Value?.ToString() ?? "";
+                //if (!status.HasError)
+                //{
+                //    register.UserId = Convert.ToInt32(cmd.Parameters["p_out_user_id"].Value);
+                //}
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
+            return new Tuple<LoggedInPasswordViewModel, StatusHelper>(userLogin, status);
+        }
     }
 }

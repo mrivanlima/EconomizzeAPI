@@ -19,7 +19,7 @@ namespace EconomizzeAPI.Controllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        ///[Authorize]
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<UserViewModel>> CreateUser(UserViewModel userViewModel)
         {

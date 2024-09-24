@@ -10,8 +10,10 @@ namespace EconomizzeAPI.Services.Repositories.Interfaces
 
         Task<UserLogin> ReadUserByUserName(UserLoginViewModel login);
 
+        Task<UserLogin> ReadByIdAsync(int id);
+
         Task<StatusHelper> UserVerifyAsync(int userId, Guid userUniqueId);
 
-
+        Task<Tuple<LoggedInPasswordViewModel, StatusHelper>> ChangeUserPassword(LoggedInPasswordViewModel login);
     }
 }

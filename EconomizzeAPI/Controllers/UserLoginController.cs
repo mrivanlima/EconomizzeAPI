@@ -5,6 +5,7 @@ using EconomizzeAPI.Services.Repositories.Classes;
 using EconomizzeAPI.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Win32;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,7 +19,8 @@ namespace EconomizzeAPI.Controllers
 		private readonly IMapper _mapper;
 		private readonly IUserLoginRepository _userLoginRepository;
 		private readonly IConfiguration _config;
-		public UserLoginController(IUserLoginRepository userLoginRepository, 
+        #region CONSTRUCTOR
+        public UserLoginController(IUserLoginRepository userLoginRepository, 
 			                       IMapper mapper,
                                    IConfiguration config)
 		{
@@ -26,6 +28,7 @@ namespace EconomizzeAPI.Controllers
 			_userLoginRepository = userLoginRepository ?? throw new ArgumentNullException(nameof(userLoginRepository));
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 		}
+        #endregion
 
         [HttpGet("verificar/{userId}")]
         public async Task<ActionResult<RegisterViewModel>> VerifyUser(int userId, [FromQuery] Guid userUniqueId)
@@ -43,13 +46,9 @@ namespace EconomizzeAPI.Controllers
 		{
 			register.UserUniqueId = Guid.NewGuid();
 			var map = _mapper.Map<RegisterViewModel>(register);
-			map.Password = BCrypt.Net.BCrypt.HashPassword
-				(
-					register.UserUniqueId.ToString() + 
-				    map.Password + 
-					register.UserUniqueId.ToString()
-				);
-			var RegisterViewModel = await _userLoginRepository.CreateAsync(map);
+            map.Password = EncryptPassword(register.UserUniqueId, map.Password);
+
+            var RegisterViewModel = await _userLoginRepository.CreateAsync(map);
 			if (RegisterViewModel.Item2.HasError)
 			{
 				return BadRequest(RegisterViewModel.Item2.Message);
@@ -79,10 +78,11 @@ namespace EconomizzeAPI.Controllers
 			{
 				return Unauthorized("Conta suspensa.");
 			}
+            string passwordHash =   userLogin.UserUniqueId.ToString() +
+                                    login.Password +
+                                    userLogin.UserUniqueId.ToString();
             //if (login.Password != userLogin.PasswordHash)
-            if (!BCrypt.Net.BCrypt.Verify(userLogin.UserUniqueId.ToString() + 
-				                          login.Password +
-                                          userLogin.UserUniqueId.ToString(), userLogin.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(passwordHash, userLogin.PasswordHash))
             {
 				return Unauthorized("Senha incorreta.");
 			}
@@ -118,12 +118,44 @@ namespace EconomizzeAPI.Controllers
             return Ok();
         }
 
-        [HttpGet("{UserId}")]
-		public async Task<ActionResult<RegisterViewModel>> GetById(short userId)
+		[HttpPut("trocarSenha")]
+        public async Task<ActionResult<LoggedInPasswordViewModel>> PasswordChange(LoggedInPasswordViewModel password)
 		{
+            var userLogin = await _userLoginRepository.ReadByIdAsync(password.UserId);
+            if (userLogin == null)
+            {
+                return NotFound();
+            }
+            if (!BCrypt.Net.BCrypt.Verify(userLogin.UserUniqueId.ToString() +
+                                          password.CurrentPassword +
+                                          userLogin.UserUniqueId.ToString(), userLogin.PasswordHash))
+            {
+                return Unauthorized("Senha incorreta.");
+            }
 
-			throw new NotImplementedException();
-		}
+            var map = _mapper.Map<LoggedInPasswordViewModel>(password);
+            map.NewPassword = EncryptPassword(userLogin.UserUniqueId, map.NewPassword);
+            var LoggedInPasswordViewModel = await _userLoginRepository.ChangeUserPassword(map);
+
+            if (LoggedInPasswordViewModel.Item2.HasError)
+            {
+                return BadRequest(LoggedInPasswordViewModel.Item2.Message);
+            }
+
+            return Ok(LoggedInPasswordViewModel);
+        }
+
+        [HttpGet("{UserId}")]
+		public async Task<ActionResult<UserLoginViewModel>> GetById(int userId)
+		{
+            var userLogin = await _userLoginRepository.ReadByIdAsync(userId);
+            if (userLogin == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(_mapper.Map<UserLoginViewModel>(userLogin));
+        }
 
 		private string CreateToken(UserLogin userLogin)
 		{
@@ -147,6 +179,18 @@ namespace EconomizzeAPI.Controllers
                     signingCredentials: sigIn
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+		private string EncryptPassword(Guid uuid, string password)
+		{
+            string encryption = BCrypt.Net.BCrypt.HashPassword
+                (
+                    uuid.ToString() +
+                    password +
+                    uuid.ToString()
+                );
+
+            return encryption;
         }
     }
 }
