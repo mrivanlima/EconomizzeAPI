@@ -1,12 +1,9 @@
-﻿using Economizze.Library;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EconomizzeAPI.Model
 {
     public class StreetViewModel
     {
-
         public int StreetId { get; set; }
 
         [Required]
@@ -35,6 +32,5 @@ namespace EconomizzeAPI.Model
         public int ModifiedBy { get; set; }
 
         public DateTime ModifiedOn { get; set; }
-
     }
 }

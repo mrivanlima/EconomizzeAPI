@@ -28,7 +28,7 @@ namespace EconomizzeAPI.Services.Cache
                 {
                     return value;
                 }
-                return null;
+                return null!;
             }
         }
 

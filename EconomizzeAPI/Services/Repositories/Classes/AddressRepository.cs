@@ -12,12 +12,16 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
         public AddressDetail AddressDetail { get; set; }
 
+        #region CONSTRUCTOR
         public AddressRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
             AddressDetail = new();
         }
+        #endregion
+
+        #region READ ADDRESS DETAILS BY ZIPCODE
         public async Task<AddressDetail> ReadByZipCodeAsync(string ZipCode)
         {
             NpgsqlDataReader? npgsqlDr = null;
@@ -55,5 +59,6 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             }
             return AddressDetail;
         }
+        #endregion
     }
 }

@@ -22,34 +22,28 @@ namespace EconomizzeAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Group>> CreateGroup(GroupViewModel group)
+        public async Task<ActionResult<GroupViewModel>> CreateGroup(GroupViewModel group)
         {
             var map = _mapper.Map<Group>(group);
-            var groupViewModel = await _groupRepository.CreateAsync(map);
-            if (groupViewModel.Item2)
+            var GroupViewModel = await _groupRepository.CreateGroupAsync(map);
+            if (GroupViewModel.Item2.HasError)
             {
                 return BadRequest();
             }
 
-            return CreatedAtRoute("grupo", new { GroupId = groupViewModel.Item1.GroupId }, _mapper.Map<GroupViewModel>(map));
+            return CreatedAtRoute("grupo", new { GroupId = GroupViewModel.Item1.GroupId }, _mapper.Map<GroupViewModel>(map));
         }
 
         [HttpGet("{groupId}", Name = "grupo")]
         public async Task<ActionResult<GroupViewModel>> GetById(short groupId)
         {
-            var group = await _groupRepository.ReadByIdAsync(groupId);
-            if (group.GroupId < 1)
-            {
-                return NotFound();
-            }
-
-            return Ok(_mapper.Map<GroupViewModel>(group));
+            throw new NotImplementedException();
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GroupViewModel>>> ReadAllGroups()
         {
-            var groups = await _groupRepository.ReadAllAsync();
+            var groups = await _groupRepository.ReadAllGroupsAsync();
             if (groups.Count() < 1)
             {
                 return NotFound();

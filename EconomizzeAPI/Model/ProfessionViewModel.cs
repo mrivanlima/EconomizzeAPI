@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EconomizzeAPI.Model
 {
     public class ProfessionViewModel
     {
-
         public short ProfessionId { get; set; }
 
         [StringLength(20)]
@@ -16,7 +14,6 @@ namespace EconomizzeAPI.Model
 
         [Required]
         public int CreatedBy { get; set; }
-
 
         public DateTime CreatedOn { get; set; }
 

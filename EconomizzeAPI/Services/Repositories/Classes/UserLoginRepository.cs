@@ -3,8 +3,6 @@ using EconomizzeAPI.Helper;
 using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.DBServices;
 using EconomizzeAPI.Services.Repositories.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Win32;
 using Npgsql;
 using System.Data;
 
@@ -14,6 +12,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 	{
 		private readonly IConnectionService _connect;
 		private readonly NpgsqlConnection _connection;
+
 		private StatusHelper status;
 
         #region CONSTRUCTOR
@@ -25,8 +24,8 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 		}
         #endregion
 
-        #region Register New User
-        public async Task<Tuple<RegisterViewModel, StatusHelper>> CreateAsync(RegisterViewModel register)
+        #region REGISTER NEW USER
+        public async Task<Tuple<RegisterViewModel, StatusHelper>> CreateUserLoginAsync(RegisterViewModel register)
 		{
 			NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_create", _connection);
 
@@ -66,7 +65,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 		}
         #endregion
 
-        #region Change Password For Logged In User
+        #region CHANGE PASSWORD FOR LOGGED IN USER
         public async Task<Tuple<LoggedInPasswordViewModel, StatusHelper>> ChangeUserPassword(LoggedInPasswordViewModel userLogin)
         {
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_update_password", _connection);
@@ -105,7 +104,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         }
         #endregion
 
-        #region Change Password For Not Logged In User
+        #region CHANGE PASSWORD FOR NOT LOGGED IN USER
         public async Task<Tuple<ForgotPasswordViewModel, StatusHelper>> ChangeUserForgotPassword(ForgotPasswordViewModel userLogin)
         {
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_update_password", _connection);
@@ -144,7 +143,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         }
         #endregion
 
-        #region Read Id & Uuid
+        #region READ ID AND UUID
         public async Task<ForgotPasswordViewModel> ReadIdUuid(ForgotPasswordViewModel forgotPassword)
         {
             NpgsqlDataReader? npgsqlDr = null;
@@ -182,7 +181,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         }
         #endregion
 
-        #region User Verify Async
+        #region VERIFY USER
         public async Task<StatusHelper> UserVerifyAsync(int userId, Guid userUniqueId)
         {
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_login_confirm_update", _connection);
@@ -213,8 +212,8 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         }
         #endregion
 
-        #region Read User By Username
-        public async Task<UserLogin> ReadUserByUserName(UserLoginViewModel login)
+        #region READ USER BY USERNAME
+        public async Task<UserLogin> ReadUserLoginByUserName(UserLoginViewModel login)
 		{
 			NpgsqlDataReader? npgsqlDr = null;
 			NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_login_read(@username)", _connection);
@@ -254,7 +253,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 		}
         #endregion
 
-        #region Read By Id Async
+        #region READ BY ID
         public async Task<UserLogin> ReadByIdAsync(int id)
         {
             UserLogin? userLogin = null;

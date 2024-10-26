@@ -24,7 +24,7 @@ namespace EconomizzeAPI.Controllers
         public async Task<ActionResult<UserViewModel>> CreateUser(UserViewModel userViewModel)
         {
             var map = _mapper.Map<User>(userViewModel);
-            var user = await _userRepository.CreateAsync(map);
+            var user = await _userRepository.CreateUserAsync(map);
             if (user.Item2.HasError)
             {
                 return BadRequest( user.Item2.Message);
@@ -39,7 +39,7 @@ namespace EconomizzeAPI.Controllers
         [HttpGet("{userId}", Name = "usuario")]
         public async Task<ActionResult<UserViewModel>> GetById(int userId)
         {
-            var user = await _userRepository.ReadByIdAsync(userId);
+            var user = await _userRepository.ReadUserByIdAsync(userId);
             if (user == null)
             {
                 return NotFound();

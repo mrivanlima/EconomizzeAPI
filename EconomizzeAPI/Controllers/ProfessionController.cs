@@ -25,8 +25,8 @@ namespace EconomizzeAPI.Controllers
         public async Task<ActionResult<Profession>> CreateProfession(ProfessionViewModel profession)
         {
             var map = _mapper.Map<Profession>(profession);
-            var professionViewModel = await _professionRepository.CreateAsync(map);
-            if (professionViewModel.Item2)
+            var professionViewModel = await _professionRepository.CreateProfessionAsync(map);
+            if (professionViewModel.Item2.HasError)
             {
                 return BadRequest();
             }
@@ -37,7 +37,7 @@ namespace EconomizzeAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProfessionViewModel>>> ReadAllProfessions()
         {
-            var professions = await _professionRepository.ReadAllAsync();
+            var professions = await _professionRepository.ReadAllProfessionsAsync();
             if (professions.Count() < 1)
             {
                 return NotFound();

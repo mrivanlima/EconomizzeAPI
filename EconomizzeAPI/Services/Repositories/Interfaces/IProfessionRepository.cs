@@ -1,12 +1,11 @@
 ﻿using Economizze.Library;
+using EconomizzeAPI.Helper;
 
 namespace EconomizzeAPI.Services.Repositories.Interfaces
 {
     public interface IProfessionRepository
     {
-        Task<Tuple<Profession, bool>> CreateAsync(Profession profession);
-        Task<bool> UpdateAsync(Profession profession);
-        Task<Profession> ReadByIdAsync(short id);
-        Task<IEnumerable<Profession>> ReadAllAsync();
+        Task<Tuple<Profession, StatusHelper>> CreateProfessionAsync(Profession profession);
+        Task<IEnumerable<Profession>> ReadAllProfessionsAsync();
     }
 }
