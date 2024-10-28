@@ -16,9 +16,12 @@ namespace EconomizzeAPI.Controllers
 	[Route("api/conta")]
 	public class UserLoginController : ControllerBase
 	{
-		private readonly IMapper _mapper;
+        #region INTERFACE INTEGRATION
+        private readonly IMapper _mapper;
 		private readonly IUserLoginRepository _userLoginRepository;
 		private readonly IConfiguration _config;
+        #endregion
+
         #region CONSTRUCTOR
         public UserLoginController(IUserLoginRepository userLoginRepository, 
 			                       IMapper mapper,
@@ -30,6 +33,7 @@ namespace EconomizzeAPI.Controllers
 		}
         #endregion
 
+        #region VERIFY USER
         [HttpGet("verificar/{userId}")]
         public async Task<ActionResult<RegisterViewModel>> VerifyUser(int userId, [FromQuery] Guid userUniqueId)
         {
@@ -40,7 +44,9 @@ namespace EconomizzeAPI.Controllers
 			}
 			return Ok();
         }
+        #endregion
 
+        #region CREATE USER
         [HttpPost("criar")]
         public async Task<ActionResult<RegisterViewModel>> CreateUser(RegisterViewModel register)
 		{
@@ -56,8 +62,68 @@ namespace EconomizzeAPI.Controllers
 
 			return CreatedAtRoute("usuario", new { UserId = RegisterViewModel.Item1.UserId }, _mapper.Map<RegisterViewModel>(map));
 		}
+        #endregion
 
-		[HttpPost("autenticar")]
+        #region CHANGE PASSWORD FOR LOGGED IN USER
+        [HttpPut("trocarSenha")]
+        public async Task<ActionResult<LoggedInPasswordViewModel>> PasswordChange(LoggedInPasswordViewModel password)
+        {
+            var userLogin = await _userLoginRepository.ReadByIdAsync(password.UserId);
+            if (userLogin == null)
+            {
+                return NotFound();
+            }
+            if (!BCrypt.Net.BCrypt.Verify(userLogin.UserUniqueId.ToString() +
+                                          password.CurrentPassword +
+                                          userLogin.UserUniqueId.ToString(), userLogin.PasswordHash))
+            {
+                return Unauthorized("Senha incorreta.");
+            }
+
+            var map = _mapper.Map<LoggedInPasswordViewModel>(password);
+            map.NewPassword = EncryptPassword(userLogin.UserUniqueId, map.NewPassword);
+            var LoggedInPasswordViewModel = await _userLoginRepository.ChangeUserPassword(map);
+
+            if (LoggedInPasswordViewModel.Item2.HasError)
+            {
+                return BadRequest(LoggedInPasswordViewModel.Item2.Message);
+            }
+
+            return Ok(LoggedInPasswordViewModel);
+        }
+        #endregion
+
+        #region CHANGE PASSWORD FOR NOT LOGGED IN USER
+        [HttpPut("trocarSenha/esqueceu")]
+        public async Task<ActionResult<ForgotPasswordViewModel>> ForgotPasswordChange(ForgotPasswordViewModel password)
+        {
+            var userLogin = await _userLoginRepository.ReadByIdAsync(password.UserId);
+            if (userLogin == null)
+            {
+                return NotFound();
+            }
+            if (BCrypt.Net.BCrypt.Verify(userLogin.UserUniqueId.ToString() +
+                                          password.NewPassword +
+                                          userLogin.UserUniqueId.ToString(), userLogin.PasswordHash))
+            {
+                return BadRequest("Senha nao pode ser a mesma!");
+            }
+
+            var map = _mapper.Map<ForgotPasswordViewModel>(password);
+            map.NewPassword = EncryptPassword(userLogin.UserUniqueId, map.NewPassword);
+            var ForgotPasswordViewModel = await _userLoginRepository.ChangeUserForgotPassword(map);
+
+            if (ForgotPasswordViewModel.Item2.HasError)
+            {
+                return BadRequest(ForgotPasswordViewModel.Item2.Message);
+            }
+
+            return Ok(ForgotPasswordViewModel);
+        }
+        #endregion
+
+        #region AUTHENTICATE USER
+        [HttpPost("autenticar")]
 		public async Task<ActionResult<UserLoginViewModel>> AuthUser(UserLoginViewModel login)
 		{
 			var map = _mapper.Map<UserLoginViewModel>(login);
@@ -92,7 +158,22 @@ namespace EconomizzeAPI.Controllers
 
             return Ok(toReturn);
 		}
+        #endregion
 
+        #region COLLECT USER ID AND UUID
+        [HttpPost("leer")]
+        public async Task<ActionResult<ForgotPasswordViewModel>> ReadIdUuid(ForgotPasswordViewModel forgotPassword)
+        {
+            var map = _mapper.Map<ForgotPasswordViewModel>(forgotPassword);
+            var idUuid = await _userLoginRepository.ReadIdUuid(map);
+
+            var toReturn = _mapper.Map<ForgotPasswordViewModel>(idUuid);
+
+            return Ok(toReturn);
+        }
+        #endregion
+
+        #region SEARCH FOR USER
         [HttpPost("buscar")]
         public async Task<ActionResult<UserLoginViewModel>> SearchUser(UserLoginViewModel login)
         {
@@ -114,37 +195,12 @@ namespace EconomizzeAPI.Controllers
             {
                 return Unauthorized("Conta suspensa.");
             }
-            
+
             return Ok();
         }
+        #endregion
 
-		[HttpPut("trocarSenha")]
-        public async Task<ActionResult<LoggedInPasswordViewModel>> PasswordChange(LoggedInPasswordViewModel password)
-		{
-            var userLogin = await _userLoginRepository.ReadByIdAsync(password.UserId);
-            if (userLogin == null)
-            {
-                return NotFound();
-            }
-            if (!BCrypt.Net.BCrypt.Verify(userLogin.UserUniqueId.ToString() +
-                                          password.CurrentPassword +
-                                          userLogin.UserUniqueId.ToString(), userLogin.PasswordHash))
-            {
-                return Unauthorized("Senha incorreta.");
-            }
-
-            var map = _mapper.Map<LoggedInPasswordViewModel>(password);
-            map.NewPassword = EncryptPassword(userLogin.UserUniqueId, map.NewPassword);
-            var LoggedInPasswordViewModel = await _userLoginRepository.ChangeUserPassword(map);
-
-            if (LoggedInPasswordViewModel.Item2.HasError)
-            {
-                return BadRequest(LoggedInPasswordViewModel.Item2.Message);
-            }
-
-            return Ok(LoggedInPasswordViewModel);
-        }
-
+        #region GET USER BY ID
         [HttpGet("{UserId}")]
 		public async Task<ActionResult<UserLoginViewModel>> GetById(int userId)
 		{
@@ -156,8 +212,10 @@ namespace EconomizzeAPI.Controllers
 
             return Ok(_mapper.Map<UserLoginViewModel>(userLogin));
         }
+        #endregion
 
-		private string CreateToken(UserLogin userLogin)
+        #region CREATE TOKEN
+        private string CreateToken(UserLogin userLogin)
 		{
             var claims = new[]
                 {
@@ -180,8 +238,10 @@ namespace EconomizzeAPI.Controllers
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+        #endregion
 
-		private string EncryptPassword(Guid uuid, string password)
+        #region ENCRYPT
+        private string EncryptPassword(Guid uuid, string password)
 		{
             string encryption = BCrypt.Net.BCrypt.HashPassword
                 (
@@ -192,5 +252,6 @@ namespace EconomizzeAPI.Controllers
 
             return encryption;
         }
+        #endregion
     }
 }
