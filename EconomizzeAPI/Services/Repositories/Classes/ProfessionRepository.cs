@@ -1,4 +1,5 @@
 ﻿using Economizze.Library;
+using EconomizzeAPI.Helper;
 using EconomizzeAPI.Services.DBServices;
 using EconomizzeAPI.Services.Repositories.Interfaces;
 using Npgsql;
@@ -11,14 +12,20 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
 
+        private StatusHelper status;
+
+        #region CONSTRUCTOR
         public ProfessionRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
+            status = new StatusHelper();
         }
-        public async Task<Tuple<Profession, bool>> CreateAsync(Profession profession)
+        #endregion
+
+        #region CREATE PROFESSION IN DB
+        public async Task<Tuple<Profession, StatusHelper>> CreateProfessionAsync(Profession profession)
         {
-            bool error = false;
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_profession_create", _connection);
 
             try
@@ -28,13 +35,13 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_profession_name", profession.ProfessionName);
                 cmd.Parameters.AddWithValue("p_created_by", profession.CreatedBy);
                 cmd.Parameters.AddWithValue("p_modified_by", profession.ModifiedBy);
-                cmd.Parameters.AddWithValue("p_error", error).Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("p_error", status.HasError).Direction = ParameterDirection.InputOutput;
                 await _connection.OpenAsync();
 
                 await cmd.ExecuteNonQueryAsync();
 
-                error = (bool)cmd.Parameters["p_error"].Value;
-                if (!error)
+                status.HasError = (bool)cmd.Parameters["p_error"].Value;
+                if (!status.HasError)
                 {
                     profession.ProfessionId = (short)cmd.Parameters["p_out_profession_id"].Value;
                 }
@@ -42,17 +49,19 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                error = true;
+                status.HasError = true;
             }
             finally
             {
                 await _connection.CloseAsync();
             }
 
-            return new Tuple<Profession, bool>(profession, error);
+            return new Tuple<Profession, StatusHelper>(profession, status);
         }
+        #endregion
 
-        public async Task<IEnumerable<Profession>> ReadAllAsync()
+        #region READ ALL PROFESSIONS IN DB
+        public async Task<IEnumerable<Profession>> ReadAllProfessionsAsync()
         {
             ICollection<Profession> professions = new List<Profession>();
             await using var command = new NpgsqlCommand("SELECT * FROM app.usp_api_profession_read_all()", _connection);
@@ -78,7 +87,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"status: {ex.Message}");
             }
             finally
             {
@@ -86,15 +95,6 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             }
             return professions;
         }
-
-        public Task<Profession> ReadByIdAsync(short id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> UpdateAsync(Profession profession)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
     }
 }

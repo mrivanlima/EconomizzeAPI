@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace EconomizzeAPI.Model
 {
     public class ProductViewModel
     {
-
         public int ProductId { get; set; }
 
         [StringLength(200)]
@@ -22,14 +20,11 @@ namespace EconomizzeAPI.Model
         [Required]
         public int CreatedBy { get; set; }
 
-
         public DateTime CreatedOn { get; set; }
 
         [Required]
         public int ModifiedBy { get; set; }
 
-
         public DateTime ModifiedOn { get; set; }
-
     }
 }

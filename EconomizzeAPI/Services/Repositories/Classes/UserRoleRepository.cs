@@ -1,4 +1,5 @@
 ﻿using Economizze.Library;
+using EconomizzeAPI.Helper;
 using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.DBServices;
 using EconomizzeAPI.Services.Repositories.Interfaces;
@@ -12,14 +13,20 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 		private readonly IConnectionService _connect;
 		private readonly NpgsqlConnection _connection;
 
-		public UserRoleRepository(IConnectionService connect)
+		public StatusHelper status;
+
+        #region CONSTRUCTOR
+        public UserRoleRepository(IConnectionService connect)
 		{
 			_connect = connect;
 			_connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
+			status = new StatusHelper();
 		}
-		public async Task<Tuple<UserRole, bool>> CreateAsync(UserRole userRole)
+        #endregion
+
+        #region CREATE USERROLE IN DB
+        public async Task<Tuple<UserRole, StatusHelper>> CreateUserRoleAsync(UserRole userRole)
 		{
-			bool error = false;
 			NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_role_create", _connection);
 
 			try
@@ -30,13 +37,13 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 				cmd.Parameters.AddWithValue("p_is_active", userRole.IsActive);
 				cmd.Parameters.AddWithValue("p_created_by", userRole.CreatedBy);
 				cmd.Parameters.AddWithValue("p_modified_by", userRole.ModifiedBy);
-				cmd.Parameters.AddWithValue("p_error", error).Direction = ParameterDirection.InputOutput;
+				cmd.Parameters.AddWithValue("p_error", status.HasError).Direction = ParameterDirection.InputOutput;
 				await _connection.OpenAsync();
 
 				await cmd.ExecuteNonQueryAsync();
 
-				error = (bool)cmd.Parameters["p_error"].Value;
-				if (!error)
+                status.HasError = (bool)cmd.Parameters["p_error"].Value;
+				if (!status.HasError)
 				{
 					userRole.RoleId = (short)cmd.Parameters["p_out_role_id"].Value;
 				}
@@ -44,17 +51,19 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			catch (Exception ex)
 			{
 				Console.WriteLine(ex.ToString());
-				error = true;
+                status.HasError = true;
 			}
 			finally
 			{
 				await _connection.CloseAsync();
 			}
 
-			return new Tuple<UserRole, bool>(userRole, error);
+			return new Tuple<UserRole, StatusHelper>(userRole, status);
 		}
+        #endregion
 
-		public async Task<IEnumerable<Role>> ReadAllAsync(UserRoleViewModel userRole)
+        #region READ ALL USER ROLES IN DB
+        public async Task<IEnumerable<Role>> ReadAllUserRolesAsync(UserRoleViewModel userRole)
 		{
 			NpgsqlDataReader? npgsqlDr = null;
 			NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_user_role_read(@userId)", _connection);
@@ -85,7 +94,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error: {ex.Message}");
+				Console.WriteLine($"status: {ex.Message}");
 			}
 			finally
 			{
@@ -93,15 +102,6 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 			}
 			return roles;
 		}
-
-		public Task<UserRole> ReadByIdAsync(short id)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<bool> UpdateAsync(UserRole userRole)
-		{
-			throw new NotImplementedException();
-		}
-	}
+        #endregion
+    }
 }

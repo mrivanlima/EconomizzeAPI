@@ -24,11 +24,10 @@ namespace EconomizzeAPI.Controllers
 		public async Task<ActionResult<State>> CreateState(StateViewModel state)
 		{
 			var map = _mapper.Map<State>(state);
-			var stateViewModel = await _stateRepository.CreateAsync(map);
-			if (stateViewModel.Item2)
+			var stateViewModel = await _stateRepository.CreateStateAsync(map);
+			if (stateViewModel.Item2.HasError)
 			{
 				return BadRequest();
-
 			}
 
 			return CreatedAtRoute("estado", new { StateId = stateViewModel.Item1.StateId }, _mapper.Map<StateViewModel>(map));
@@ -37,7 +36,7 @@ namespace EconomizzeAPI.Controllers
 		[HttpGet("{stateId}", Name = "estado")]
 		public async Task<ActionResult<StateViewModel>> GetById(short stateId)
 		{
-			var state = await _stateRepository.ReadByIdAsync(stateId);
+			var state = await _stateRepository.ReadStateByIdAsync(stateId);
 			if (state.StateId < 1)
 			{
 				return NotFound();
@@ -49,7 +48,7 @@ namespace EconomizzeAPI.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<StateViewModel>>> GetStatesAll()
 		{
-			var states = await _stateRepository.ReadAllAsync();
+			var states = await _stateRepository.ReadAllStatesAsync();
 			if (states.Count() < 1)
 			{
 				return NotFound();
@@ -61,7 +60,7 @@ namespace EconomizzeAPI.Controllers
 		public async Task<ActionResult<StateViewModel>> UpdateById(StateViewModel state)
 		{
 			var result = _mapper.Map<State>(state);
-			var StateViewModel = await _stateRepository.UpdateAsync(result);
+			var StateViewModel = await _stateRepository.UpdateStateAsync(result);
 			if (StateViewModel == true)
 			{
 				return NotFound();

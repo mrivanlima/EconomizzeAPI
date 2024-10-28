@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
 using Economizze.Library;
 using EconomizzeAPI.Model;
-using EconomizzeAPI.Services.Repositories.Classes;
 using EconomizzeAPI.Services.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Win32;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -54,7 +52,7 @@ namespace EconomizzeAPI.Controllers
 			var map = _mapper.Map<RegisterViewModel>(register);
             map.Password = EncryptPassword(register.UserUniqueId, map.Password);
 
-            var RegisterViewModel = await _userLoginRepository.CreateAsync(map);
+            var RegisterViewModel = await _userLoginRepository.CreateUserLoginAsync(map);
 			if (RegisterViewModel.Item2.HasError)
 			{
 				return BadRequest(RegisterViewModel.Item2.Message);
@@ -127,7 +125,7 @@ namespace EconomizzeAPI.Controllers
 		public async Task<ActionResult<UserLoginViewModel>> AuthUser(UserLoginViewModel login)
 		{
 			var map = _mapper.Map<UserLoginViewModel>(login);
-			var userLogin = await _userLoginRepository.ReadUserByUserName(map);
+			var userLogin = await _userLoginRepository.ReadUserLoginByUserName(map);
 			if (userLogin.UserId == 0)
 			{
 				return NotFound("Usuario nao encontrado");
@@ -178,7 +176,7 @@ namespace EconomizzeAPI.Controllers
         public async Task<ActionResult<UserLoginViewModel>> SearchUser(UserLoginViewModel login)
         {
             var map = _mapper.Map<UserLoginViewModel>(login);
-            var userLogin = await _userLoginRepository.ReadUserByUserName(map);
+            var userLogin = await _userLoginRepository.ReadUserLoginByUserName(map);
             if (userLogin.UserId == 0)
             {
                 return NotFound("Usuario nao encontrado");

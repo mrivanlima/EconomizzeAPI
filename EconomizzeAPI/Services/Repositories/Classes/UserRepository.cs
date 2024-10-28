@@ -3,12 +3,8 @@ using EconomizzeAPI.Helper;
 using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.DBServices;
 using EconomizzeAPI.Services.Repositories.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using Npgsql;
 using System.Data;
-using System.Diagnostics;
-using System.Reflection.Emit;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EconomizzeAPI.Services.Repositories.Classes
 {
@@ -16,16 +12,20 @@ namespace EconomizzeAPI.Services.Repositories.Classes
     {
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
+
         private StatusHelper status;
 
+        #region CONSTRUCTOR
         public UserRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
             status = new StatusHelper();
         }
+        #endregion
 
-        public async Task<Tuple<User, StatusHelper>> CreateAsync(User user)
+        #region CREATE USER IN DB
+        public async Task<Tuple<User, StatusHelper>> CreateUserAsync(User user)
         {
             status.HasError = false;
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_user_create", _connection);
@@ -69,8 +69,10 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             }
             return new Tuple<User, StatusHelper>(user, status);
         }
+        #endregion
 
-        public async Task<User> ReadByIdAsync(int id)
+        #region READ USER BY USER ID
+        public async Task<User> ReadUserByIdAsync(int id)
         {
             User? user = null;
             NpgsqlDataReader? npgsqlDr = null;
@@ -112,7 +114,9 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
             return user;
         }
+        #endregion
 
+        #region READ USER BY USERNAME
         public async Task<UserDetailViewModel> ReadUserByUsername(string username)
         {
             NpgsqlDataReader? npgsqlDr = null;
@@ -162,5 +166,6 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             }
             return userDetail;
         }
+        #endregion
     }
 }

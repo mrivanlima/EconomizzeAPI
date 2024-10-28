@@ -23,7 +23,7 @@ namespace EconomizzeAPI.Controllers
         public async Task<ActionResult<UserAddressViewModel>> CreateUserAddress(UserAddressViewModel userAddress)
         {
             var map = _mapper.Map<UserAddress>(userAddress);
-            var model = await _userAddressRepository.CreateAsync(map);
+            var model = await _userAddressRepository.CreateUserAddressAsync(map);
             if (model.Item2.HasError)
             {
                 return BadRequest(model.Item2.Message);
@@ -35,13 +35,7 @@ namespace EconomizzeAPI.Controllers
         [HttpGet("{userId}", Name = "usuarioendereco")]
         public async Task<ActionResult<UserAddressViewModel>> GetById(UserAddressViewModel userAddress)
         {
-            var user = await _userAddressRepository.ReadByIdAsync(userAddress);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(_mapper.Map<UserAddressViewModel>(userAddress));
+            throw new NotImplementedException();
         }
 
     }

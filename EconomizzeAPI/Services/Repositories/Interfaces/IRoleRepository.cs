@@ -1,12 +1,11 @@
 ﻿using Economizze.Library;
+using EconomizzeAPI.Helper;
 
 namespace EconomizzeAPI.Services.Repositories.Interfaces
 {
     public interface IRoleRepository
     {
-		Task<Tuple<Role, bool>> CreateAsync(Role role);
-		Task<bool> UpdateAsync(Role role);
-		Task<Role> ReadByIdAsync(short id);
-		Task<IEnumerable<Role>> ReadAllAsync();
+		Task<Tuple<Role, StatusHelper>> CreateRoleAsync(Role role);
+		Task<IEnumerable<Role>> ReadAllRolesAsync();
 	}
 }

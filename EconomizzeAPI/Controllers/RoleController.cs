@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Economizze.Library;
-using Microsoft.AspNetCore.Http.HttpResults;
 using AutoMapper;
 using EconomizzeAPI.Model;
 using EconomizzeAPI.Services.Repositories.Interfaces;
-using EconomizzeAPI.Services.Repositories.Classes;
 
 namespace EconomizzeAPI.Controllers
 {
@@ -25,8 +22,8 @@ namespace EconomizzeAPI.Controllers
 		public async Task<ActionResult<Role>> CreateRole(RoleViewModel role)
 		{
 			var map = _mapper.Map<Role>(role);
-			var roleViewModel = await _roleRepository.CreateAsync(map);
-			if (roleViewModel.Item2)
+			var roleViewModel = await _roleRepository.CreateRoleAsync(map);
+			if (roleViewModel.Item2.HasError)
 			{
 				return BadRequest();
 			}
@@ -37,19 +34,13 @@ namespace EconomizzeAPI.Controllers
 		[HttpGet("{roleId}", Name = "role")]
 		public async Task<ActionResult<RoleViewModel>> GetById(short roleId)
 		{
-			var role = await _roleRepository.ReadByIdAsync(roleId);
-			if (role.RoleId < 1)
-			{
-				return NotFound();
-			}
-
-			return Ok(_mapper.Map<RoleViewModel>(role));
+			throw new NotImplementedException();
 		}
 
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<RoleViewModel>>> ReadAllRoles()
 		{
-			var roles = await _roleRepository.ReadAllAsync();
+			var roles = await _roleRepository.ReadAllRolesAsync();
 			if (roles.Count() < 1)
 			{
 				return NotFound();

@@ -1,12 +1,9 @@
 ﻿using Economizze.Library;
+using EconomizzeAPI.Helper;
 using EconomizzeAPI.Services.DBServices;
 using EconomizzeAPI.Services.Repositories.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Npgsql;
 using System.Data;
-using System.Data.SqlTypes;
-using System.Security.Cryptography.X509Certificates;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EconomizzeAPI.Services.Repositories.Classes
 {
@@ -15,15 +12,20 @@ namespace EconomizzeAPI.Services.Repositories.Classes
         private readonly IConnectionService _connect;
         private readonly NpgsqlConnection _connection;
 
+        private StatusHelper status;
+
+        #region CONSTRUCTOR
         public StateRepository(IConnectionService connect)
         {
             _connect = connect;
             _connection = connect.GetConnection() ?? throw new ArgumentNullException(nameof(_connect));
+            status = new StatusHelper();
         }
-        public async Task<Tuple<State, bool>> CreateAsync(State state)
-        {
+        #endregion
 
-            bool error = false;
+        #region CREATE STATE IN DB
+        public async Task<Tuple<State, StatusHelper>> CreateStateAsync(State state)
+        {
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_state_create", _connection);
 
             try
@@ -36,13 +38,13 @@ namespace EconomizzeAPI.Services.Repositories.Classes
                 cmd.Parameters.AddWithValue("p_latitude", state.Latitude.HasValue ? state.Latitude.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("p_created_by", state.CreatedBy);
                 cmd.Parameters.AddWithValue("p_modified_by", state.ModifiedBy);
-                cmd.Parameters.AddWithValue("p_error", error).Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("p_error", status.HasError).Direction = ParameterDirection.InputOutput;
                 await _connection.OpenAsync();
 
                 cmd.ExecuteNonQuery();
 
-                error = (bool)cmd.Parameters["p_error"].Value;
-                if (!error)
+                status.HasError = (bool)cmd.Parameters["p_error"].Value;
+                if (!status.HasError)
                 {
                     state.StateId = (short)cmd.Parameters["p_out_state_id"].Value;
                 }
@@ -51,16 +53,18 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                error = true;
+                status.HasError = true;
             }
             finally
             {
                 await _connection.CloseAsync();
             }
-            return new Tuple<State, bool>(state, error);
+            return new Tuple<State, StatusHelper>(state, status);
         }
+        #endregion
 
-        public async Task<State> ReadByIdAsync(short id)
+        #region READ STATE BY STATE ID
+        public async Task<State> ReadStateByIdAsync(short id)
         {
             NpgsqlDataReader? npgsqlDr = null;
             NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM app.usp_api_state_read_by_id(@p_state_id)", _connection);
@@ -96,8 +100,10 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             return state;
 
         }
+        #endregion
 
-        public async Task<IEnumerable<State>> ReadAllAsync()
+        #region READ ALL STATES IN DB
+        public async Task<IEnumerable<State>> ReadAllStatesAsync()
         {
             ICollection<State> states = new List<State>();
             await using var command = new NpgsqlCommand("SELECT * FROM app.usp_api_state_read_all()", _connection);
@@ -121,7 +127,7 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"status: {ex.Message}");
             }
             finally
             {
@@ -129,8 +135,10 @@ namespace EconomizzeAPI.Services.Repositories.Classes
             }
             return states;
         }
+        #endregion
 
-        public async Task<bool> UpdateAsync(State state)
+        #region UPDATE STATE IN DB
+        public async Task<bool> UpdateStateAsync(State state)
         {
             bool error = false;
             NpgsqlCommand cmd = new NpgsqlCommand("app.usp_api_state_update_by_id", _connection);
@@ -166,5 +174,6 @@ namespace EconomizzeAPI.Services.Repositories.Classes
 
             return error;
         }
+        #endregion
     }
 }
