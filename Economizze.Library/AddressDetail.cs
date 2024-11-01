@@ -3,6 +3,7 @@
     public class AddressDetail
     {
         public int StreetId { get; set; }
+        public int NeighborhoodId { get; set; }
         public string? StreetName { get; set; } = string.Empty;
         public string? StreetNameAscii { get; set; } = string.Empty;
         public string? Zipcode { get; set; } = string.Empty;
